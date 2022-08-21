@@ -4,28 +4,76 @@ Created on Sat Aug 20 23:07:33 2022
 
 @author: Lenovo
 """
-
-###################################################
-##############IMPORT LIBRARIES#####################
-################################################### 
 import numpy as np
-import matplotlib.pyplot as plt
-import math
 
-def lorenz(xEU,yEU,zEU,par):
-    x_dot = par[0]*(yEU[i]-xEU[i])
-    y_dot = par[2]*xEU[i] - xEU[i]*zEU[i] - yEU[i]
-    z_dot = xEU[i]*yEU[i] - par[1]*zEU[i]
-    return x_dot,y_dot,z_dot
+def lorenz(state_vector: float, t: float, sigma: float, b: float, r1: float) -> float: 
+    """" This function returns the time derivative of the 3 variables x, y and 
+    z as given by the Lorenz system, a simplified model of atmospheric 
+    convection.
+        
+        Arguments:
+        ----------
+            state_vector : ndarray-like(float) 
+            It is the vector formed by the 3 variables x(t), y(t) and z(t) of 
+            the Lorenz system.
+            
+            t : array-like(float)
+            Time.
+            
+            sigma : scalar(float)
+            First parameter of the system. It is proportional to the Prandtl 
+            number and it is a measure of diffusivity.
+            
+            b : scalar(float)
+            Second parameter of the system. It represents some physical and 
+            geometrical properties of the problem.
+            
+            r : scalar(float)
+            Third parameter of the system. It is proportional to the Rayleigh
+            number and it gives information about the nature of the flow.
+            
+        Returns:
+        --------
+            [x_dot,y_dot,z_dot] : ndarray-like(float)
+            Time derivative of the 3 variables x, y and z as obtained from the
+            Lorenz system.
+            
+    """
+    x,y,z=state_vector    
+    
+    x_dot = sigma*(y-x)
+    y_dot = r1*x - x*z - y
+    z_dot = x*y - b*z
+    
+    return [x_dot,y_dot,z_dot]
 
 
-num_steps=12000 #number of time steps (initial time step not included)
-parset=0
-eps = 1E-3
-L0=[9.,10.,20.] #initial condition 1
-L01=[9. + eps,10.,20.] #initial condition 2
-dt=0.005 #time step 
+def perturbation(init_cond: float, eps: float) -> float:
+    """ This function adds a perturbation to the first component of the initial
+    condition of the simulation.
+    
+        Arguments:
+        ----------
+            init_cond : array-like(float)
+            Unperturbed initial values of the 3 variables of the system.
+            
+            eps : array-like(float)
+            Three different values used to perturb the x-component of the 
+            initial condition.
+        
+        Returns:
+        --------
+            IC : ndarray-like(float)
+            Matrix where each rows represents a set of initial conditions. The 
+            first row are the unperturbed ones.
+            
+    
+    """
+    
+    IC = np.zeros((4,3))
+    IC[0,:] = init_cond
+    for i in range(1,4):
+        IC[i,:]=IC[0,:]+[eps[i-1],0.,0.]
+    
+    return IC
 
-    #parametri sigma, b ed r
-set_par1=[10.,8./3.,28.] 
-set_par2=[10.,8./3.,9.]
