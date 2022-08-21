@@ -42,3 +42,26 @@ def xzgraph(sol, r):
     ax.set_ylabel('z')
     ax.grid()
     plt.show()
+    
+
+def plot_difference(diff,t):
+    
+    fig,(ax)=plt.subplots(1,1,figsize=(8,6))
+    ax.plot(t, diff,'k', marker='.',markersize=1, label='')
+    #ax.set_ylim([0,50])
+    ax.legend(loc='best')
+    ax.set_title('Difference')
+    ax.set_xlabel('t')
+    ax.grid()
+    plt.show()
+
+def plot_rsme(rsme,t):
+    
+    fig,(ax)=plt.subplots(1,1,figsize=(8,6))
+    ax.plot(t, rsme,'k', marker='.',markersize=1, label='')
+    #ax.set_ylim([0,50])
+    ax.legend(loc='best')
+    ax.set_title('Root Mean Square Error')
+    ax.set_xlabel('t')
+    ax.grid()
+    plt.show()
