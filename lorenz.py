@@ -77,3 +77,27 @@ def perturbation(init_cond: float, eps: float) -> float:
     
     return IC
 
+def difference(sol1: float, sol2: float) -> float:
+    
+    delta_x = sol1[:,0] - sol2[:,0]
+    
+    return delta_x
+
+def RSME(sol1: float,sol2: float) -> float:
+    
+    rsme = np.sqrt((sol1[:,0] - sol2[:,0])**2 + (sol1[:,1]-sol2[:,1])**2 + (sol1[:,2]-sol2[:,2])**2)
+    
+    return rsme
+
+
+
+
+
+
+
+
+
+
+
+
+
