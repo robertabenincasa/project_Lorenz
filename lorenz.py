@@ -6,7 +6,7 @@ Created on Sat Aug 20 23:07:33 2022
 """
 import numpy as np
 
-def lorenz(state_vector: float, t: float, sigma: float, b: float, r1: float) -> float: 
+def lorenz(state_vector: float, t: float, sigma: float, b: float, r1: float, f: float) -> float: 
     """" This function returns the time derivative of the 3 variables x, y and 
     z as given by the Lorenz system, a simplified model of atmospheric 
     convection.
@@ -41,9 +41,9 @@ def lorenz(state_vector: float, t: float, sigma: float, b: float, r1: float) -> 
     """
     x,y,z=state_vector    
     
-    x_dot = sigma*(y-x)
-    y_dot = r1*x - x*z - y
-    z_dot = x*y - b*z
+    x_dot = sigma * (y - x)
+    y_dot = r1 * x - x * z - y + f
+    z_dot = x * y - b * z
     
     return [x_dot,y_dot,z_dot]
 
@@ -72,8 +72,8 @@ def perturbation(init_cond: float, eps: float) -> float:
     
     IC = np.zeros((4,3))
     IC[0,:] = init_cond
-    for i in range(1,4):
-        IC[i,:]=IC[0,:]+[eps[i-1],0.,0.]
+    for i in range(len(eps)):
+        IC[i,:]=IC[0,:]+[eps[i],0.,0.]
     
     return IC
 
