@@ -6,6 +6,8 @@ Created on Sun Aug 21 13:40:54 2022
 """
 
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
+import numpy as np
 
 def xzgraph(sol, r):
     """ This function produces a plot of the solution of the integration of the 
@@ -43,25 +45,37 @@ def xzgraph(sol, r):
     ax.grid()
     plt.show()
     
-
-def plot_difference(diff,t):
+def plot_3dsolution(sol, r):
     
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    ax.plot3D(sol[:,0], sol[:,1],sol[:,2], 'black', marker='.',markersize=0.2)
+    
+
+
+
+
+
+
+def plot_difference(diff,t, r):
+    rho = r
     fig,(ax)=plt.subplots(1,1,figsize=(8,6))
     ax.plot(t, diff,'k', marker='.',markersize=1, label='')
     #ax.set_ylim([0,50])
     ax.legend(loc='best')
-    ax.set_title('Difference')
+    ax.set_title('Difference - r = %i'%rho)
     ax.set_xlabel('t')
     ax.grid()
     plt.show()
 
-def plot_rsme(rsme,t):
-    
+def plot_rsme(rsme,t, r, e, pred_time):
+    rho = r
+    eps = e
     fig,(ax)=plt.subplots(1,1,figsize=(8,6))
-    ax.plot(t, rsme,'k', marker='.',markersize=1, label='')
-    #ax.set_ylim([0,50])
+    ax.plot(t, rsme,'k', marker='.',markersize=1, label='$\epsilon$ = %f'%eps)
+    plt.axvline(pred_time, color = 'red')
     ax.legend(loc='best')
-    ax.set_title('Root Mean Square Error')
+    ax.set_title('Root Mean Square Error - r = %i'%rho)
     ax.set_xlabel('t')
     ax.grid()
     plt.show()
