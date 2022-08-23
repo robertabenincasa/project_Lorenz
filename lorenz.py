@@ -6,7 +6,17 @@ Created on Sat Aug 20 23:07:33 2022
 """
 import numpy as np
 
-def lorenz(state_vector: float, t: float, sigma: float, b: float, r1: float, f: float) -> float: 
+
+
+
+def lorenz(
+           state_vector: np.ndarray, 
+           t: np.ndarray,
+           sigma: float,
+           b: float,
+           r1: float,
+           f: float,
+           ) -> list: 
     """" This function returns the time derivative of the 3 variables x, y and 
     z as given by the Lorenz system, a simplified model of atmospheric 
     convection.
@@ -48,7 +58,10 @@ def lorenz(state_vector: float, t: float, sigma: float, b: float, r1: float, f: 
     return [x_dot,y_dot,z_dot]
 
 
-def perturbation(init_cond: float, eps: float) -> float:
+def perturbation(
+                 init_cond: np.ndarray,
+                 eps: np.ndarray,
+                 ) -> np.ndarray:
     """ This function adds a perturbation to the first component of the initial
     condition of the simulation.
     
@@ -67,30 +80,83 @@ def perturbation(init_cond: float, eps: float) -> float:
             Matrix where each rows represents a set of initial conditions. The 
             first row are the unperturbed ones.
             
+        Notes:
+        ------
+            The number of perturbed ICs depends on the number of 
+            perturbations.
     
     """
     
-    IC = np.zeros((4,3))
+    IC = np.zeros((len(eps),3))
     IC[0,:] = init_cond
     for i in range(len(eps)):
         IC[i,:]=IC[0,:]+[eps[i],0.,0.]
     
     return IC
 
-def difference(sol1: float, sol2: float) -> float:
+def difference(
+               sol1: np.ndarray,
+               sol2: np.ndarray,
+               ) -> np.ndarray:
+    
+    """ This function performs the difference between the x-components of 
+        2 trajectories of the system.
+        
+            Arguments:
+            ----------
+                sol1 : ndarray-like(float)
+                First solution, the unperturbed one.
+                
+                sol2 : ndarray-like(float)
+                Second solution, the perturbed one.
+                
+            Returns:
+            --------
+                delta_x : array-like(float)
+                Difference between the x-components of the 2 solutions.
+                
+    """
     
     delta_x = sol1[:,0] - sol2[:,0]
     
-    return delta_x
+    return delta_x 
 
-def RSME(sol1: float,sol2: float) -> float:
+
+
+def RMSE(
+        sol1: np.ndarray,
+        sol2: np.ndarray,
+        ) -> np.ndarray:
+    
+    """"""
     
     rsme = np.sqrt((sol1[:,0] - sol2[:,0])**2 + (sol1[:,1]-sol2[:,1])**2 + (sol1[:,2]-sol2[:,2])**2)
     
     return rsme
 
 
-
+def prediction(
+        error: np.ndarray,
+        num_steps: int,
+        dt: float,
+        eps: np.ndarray,
+        ) -> np.ndarray:
+    
+    pred_time = np.zeros(len(eps)-1)
+    
+    for i in range(1,len(eps)):
+    
+        for m in range(num_steps): 
+        
+            if error[m,i] > 0.5:
+            
+                pred_time[i-1] = m * dt 
+            
+                break 
+            
+    return pred_time
+            
+    
 
 
 
