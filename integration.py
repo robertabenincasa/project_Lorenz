@@ -2,11 +2,12 @@
 """
 Created on Sun Aug 21 12:58:03 2022
 
-@author: Lenovo
+@author: roberta benincasa
 """
 from lorenz import (lorenz, perturbation, difference, RMSE, prediction)
 from plots import (xzgraph, plot_difference, plot_rmse, plot_3dsolution)
 from tabulate import tabulate
+import scipy.integrate
 from scipy.integrate import odeint
 import numpy as np
 import pandas as pd
@@ -21,7 +22,6 @@ config.read('config.ini')
 
 #-----------------------Parameters-------------------------#
 #Canonical choice of the parameters of the Lorenz system,
-#as given by Lorenz
 
 sigma = 10.
 
@@ -47,7 +47,7 @@ IC0 =  [9.,10.,20.] #initial condition
 
 eps = [0.,1E-5,1E-3,1.] #perturbations
 
-t = np.linspace(0,num_steps,num_steps+1)*dt #time variable
+t = np.linspace(0,num_steps,num_steps)*dt #time variable
 
 
 #-----------------------Integration------------------------#
@@ -56,11 +56,11 @@ IC = perturbation(IC0,eps) #perturbed initial conditions
 
 #Initializing arrays
 
-sol_1 = np.zeros((num_steps + 1, 3, len(eps))) #chaotic solution for each IC
-sol_2 = np.zeros((num_steps + 1, 3, len(eps))) #non-chaotic solution for each IC
+sol_1 = np.zeros((num_steps , 3, len(eps))) #chaotic solution for each IC
+sol_2 = np.zeros((num_steps , 3, len(eps))) #non-chaotic solution for each IC
 
-sol_1_f = np.zeros((num_steps + 1, 3))
-sol_2_f = np.zeros((num_steps + 1, 3))
+sol_1_f = np.zeros((num_steps , 3))
+sol_2_f = np.zeros((num_steps , 3))
 
 #Integrating
 #Solutions for each value of r and for each IC
@@ -80,12 +80,12 @@ for i in range(len(eps)):
 
 #Initializing arrays
 
-delta_x = np.zeros((num_steps+1, 2)) #the difference was performed only 
+delta_x = np.zeros((num_steps, 2)) #the difference was performed only 
                                      #between the solution of unperturbed 
                                      #case and the one of the first perturbed 
                                      #case, as a preliminary analysis
 
-error = np.zeros((num_steps+1, len(eps))) #the rmse was calculated for each
+error = np.zeros((num_steps, len(eps))) #the rmse was calculated for each
                                          #perturbed case with r = 28
 pred_time = np.zeros(3)                  #the same for the prediction time 
  
@@ -138,3 +138,48 @@ print(tabulate(data, headers=col_names, tablefmt="fancy_grid"))
 
 df = pd.DataFrame(data, columns=['Perturbation','Prediction time'])
 print(df)
+
+#---------------------------Testing--------------------------#
+
+def test_valid_IC():
+    
+    for i in range(3):  
+    
+        assert IC0[i] == IC[0,i]
+
+def test_valid_IC_1():
+    
+    for i in range(1,len(eps)):
+        
+        for m in range(2,3):
+         
+            assert IC0[m] == IC[i,m]
+        
+ 
+def test_diff1():
+    
+    delta_x = difference(sol_1[:,:,0],sol_1[:,:,0])
+    
+    for i in range(num_steps):
+        
+        assert delta_x[i] == 0.    
+ 
+    
+def test_RMSE():
+    
+    for i in range(num_steps):
+        
+        for j in range(1,len(eps)):  
+            
+            assert error[i,j] >= 0.
+            
+            
+def test_RMSE1():
+    
+    rmse = RMSE(sol_1[:,:,0],sol_1[:,:,0])
+    
+    for i in range(num_steps):
+        
+        assert rmse[i] == 0.
+    
+            
