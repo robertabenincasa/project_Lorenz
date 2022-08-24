@@ -2,7 +2,7 @@
 """
 Created on Sat Aug 20 23:07:33 2022
 
-@author: Lenovo
+@author: roberta benincasa
 """
 import numpy as np
 
@@ -17,9 +17,16 @@ def lorenz(
            r1: float,
            f: float,
            ) -> list: 
-    """" This function returns the time derivative of the 3 variables x, y and 
-    z as given by the Lorenz system, a simplified model of atmospheric 
-    convection.
+    """" This function returns the time derivative of the 3 variables x, y 
+         and z as given by the Lorenz system.
+    
+         The Lorenz system is a simplified model of atmospheric convection. 
+         The 3 variables represent the intensity of the convective flux, the
+         temperature difference between the ascending and the descending 
+         branch and the deviation from a linear temperature profile at the 
+         centre of the cell, respectively. Moreover, it is a canonical 
+         example of a system that shows chaotic behaviour for certain values 
+         of the parameters.
         
         Arguments:
         ----------
@@ -44,9 +51,14 @@ def lorenz(
             
         Returns:
         --------
-            [x_dot,y_dot,z_dot] : ndarray-like(float)
+            [x_dot,y_dot,z_dot] : list(float)
             Time derivative of the 3 variables x, y and z as obtained from the
             Lorenz system.
+            
+        Notes:
+        ------
+            The canonical choice of parameters to obtain a chaotic solution 
+            is sigma = 10 , b = 8/3 and r = 28.
             
     """
     x,y,z=state_vector    
@@ -62,8 +74,8 @@ def perturbation(
                  init_cond: np.ndarray,
                  eps: np.ndarray,
                  ) -> np.ndarray:
-    """ This function adds a perturbation to the first component of the initial
-    condition of the simulation.
+    """ This function adds a perturbation to the first component of the 
+    initial condition of the simulation.
     
         Arguments:
         ----------
@@ -83,7 +95,8 @@ def perturbation(
         Notes:
         ------
             The number of perturbed ICs depends on the number of 
-            perturbations.
+            perturbations. 
+            The choice to perturb only the x-component is arbitrary.
     
     """
     
@@ -101,6 +114,10 @@ def difference(
     
     """ This function performs the difference between the x-components of 
         2 trajectories of the system.
+        
+        It is a preliminary method to obtain a measure of the divergence of 
+        2 trajectories of the same system given a slightly difference in 
+        the initial conditions adopted for the integration. 
         
             Arguments:
             ----------
@@ -128,7 +145,33 @@ def RMSE(
         sol2: np.ndarray,
         ) -> np.ndarray:
     
-    """"""
+    """This function performs the calculation of the root mean square error 
+       of the solution obtained from the perturbed ICs with respect to the 
+       unperturbed one.
+       
+       It is a measure of the divergence of 2 trajectories of the same
+       system given a slightly difference in the initial conditions adopted 
+       for the integration.
+       
+       
+           Arguments:
+           ----------
+               sol1 : ndarray-like(float)
+               Unperturbed solution.
+               
+               sol2: ndarray-like(float)
+               Perturbed solution.
+               
+           Returns:
+           --------
+               rmse : ndarray-like(float)
+               Root Mean Square Error as a function of time. It is defined as
+               the square root of the sum of the squared differences between
+               the corresponding components of the 2 trajectories.
+               
+        
+    
+    """
     
     rsme = np.sqrt((sol1[:,0] - sol2[:,0])**2 + (sol1[:,1]-sol2[:,1])**2 + (sol1[:,2]-sol2[:,2])**2)
     
@@ -142,6 +185,44 @@ def prediction(
         eps: np.ndarray,
         ) -> np.ndarray:
     
+    """ This function finds the value of the prediction time for each value 
+        of the perturbation applied to the system. 
+        
+            Arguments:
+            ----------
+                error : ndarray-like(float)
+                Root Mean Square Error as a function of time. It is defined as
+                the square root of the sum of the squared differences between
+                the corresponding components of the 2 trajectories.
+                
+                num_steps : int
+                Number of time steps for the integration.
+                
+                dt : float
+                TIme step for the integration.
+                
+                eps : array-like(float)
+                Vector of the possible perturbations that can be applied 
+                to the x-component of the IC of the system.
+                
+            Returns:
+            --------
+                pred_time : array-like(float)
+                Measure of the chaotic nature of the system, i.e. the time 
+                after which a perturbation to the IC of the system leads to
+                a significative divergence of the solution with respect to 
+                the unperturbed trajectory. 
+                
+                It is here defined as the time when the RMSE becomes greater
+                than a certain threshold, chosen to be 0.5 .
+            
+            Notes:
+            ------
+                The prediction time is here treated as an array since it 
+                depends on the value of the perturbation.
+                
+    
+    """
     pred_time = np.zeros(len(eps)-1)
     
     for i in range(1,len(eps)):
