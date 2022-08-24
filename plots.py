@@ -2,7 +2,7 @@
 """
 Created on Sun Aug 21 13:40:54 2022
 
-@author: Lenovo
+@author: roberta benincasa
 """
 
 import matplotlib.pyplot as plt
