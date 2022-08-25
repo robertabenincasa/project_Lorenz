@@ -6,7 +6,15 @@ Created on Sat Aug 20 23:07:33 2022
 """
 import numpy as np
 
-
+def read_parameters(par: str) -> np.ndarray:
+    
+    par = par.split(',')
+    
+    for i in range(len(par)):
+        
+        par[i] = float(par[i])
+        
+    return par
 
 
 def lorenz(
@@ -234,6 +242,11 @@ def prediction(
                 pred_time[i-1] = m * dt 
             
                 break 
+        
+        if np.all(error[:,i] < 0.5):
+            
+            print('for $/epsilon$ = ', eps[i], 
+        'the RMSE is always smaller than 0.5 for the entire time window')
             
     return pred_time
             
