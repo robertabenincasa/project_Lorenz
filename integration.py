@@ -8,10 +8,9 @@ from lorenz import (lorenz, perturbation, difference,
                     RMSE, prediction, read_parameters)
 
 from plots import (xzgraph, plot_difference, plot_rmse,
-                   plot_3dsolution)
+                   plot_3dsolution, plot_animation, animate)
 
 from tabulate import tabulate
-#import scipy.integrate
 from scipy.integrate import odeint
 import numpy as np
 import pandas as pd
@@ -25,7 +24,7 @@ config.read('config.ini')
 
 
 #-----------------------Parameters-------------------------#
-#Canonical choice of the parameters of the Lorenz system,
+
 
 sigma = config.get('Parameters', 'sigma')
 sigma = float(sigma)
@@ -38,10 +37,6 @@ r1 = float(r1)
 
 r2 =  config.get('Parameters', 'r2') #non-chaotic solution
 r2 = float(r2)
-
-f1 = 0.
-
-f2 = 1. 
 
 #-----------------Integration parameters-------------------#
 
@@ -59,8 +54,7 @@ eps = read_parameters(eps)
     
 
 t = np.linspace(0,num_steps,num_steps)*dt #time variable
-print(eps)
-print(IC0)
+
 
 #-----------------------Integration------------------------#
 
@@ -82,9 +76,9 @@ sol_2 = np.zeros((num_steps , 3, len(eps)))
 
 for i in range(len(eps)):
     
-    sol_1[:,:,i] = odeint(lorenz,IC[i,:],t,args=(sigma,b,r1,f1)) 
+    sol_1[:,:,i] = odeint(lorenz,IC[i,:],t,args=(sigma,b,r1)) 
     #chaotic solution
-    sol_2[:,:,i] = odeint(lorenz,IC[i,:],t,args=(sigma,b,r2,f1))
+    sol_2[:,:,i] = odeint(lorenz,IC[i,:],t,args=(sigma,b,r2))
     #non-chaotic solution
 
     
@@ -133,6 +127,9 @@ xzgraph(sol_2[:,:,0],r2)
 
 plot_3dsolution(sol_1[:,:,0],r1)
 plot_3dsolution(sol_2[:,:,0],r2)
+
+plot_animation(sol_1[:,:,0],r1)
+
 
 plot_difference(delta_x[:,0],t, r1) 
 plot_difference(delta_x[:,1],t, r2)
