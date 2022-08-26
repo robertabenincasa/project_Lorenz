@@ -23,7 +23,6 @@ def lorenz(
            sigma: float,
            b: float,
            r1: float,
-           f: float,
            ) -> list: 
     """" This function returns the time derivative of the 3 variables x, y 
          and z as given by the Lorenz system.
@@ -72,7 +71,7 @@ def lorenz(
     x,y,z=state_vector    
     
     x_dot = sigma * (y - x)
-    y_dot = r1 * x - x * z - y + f
+    y_dot = r1 * x - x * z - y 
     z_dot = x * y - b * z
     
     return [x_dot,y_dot,z_dot]
@@ -251,7 +250,8 @@ def prediction(
     return pred_time
             
     
-
+    
+    
 
 
 
