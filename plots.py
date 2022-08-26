@@ -6,8 +6,9 @@ Created on Sun Aug 21 13:40:54 2022
 """
 
 import matplotlib.pyplot as plt
-#from mpl_toolkits import mplot3d
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+import matplotlib.animation as animation
 
 def xzgraph(
         sol: np.ndarray,
@@ -121,3 +122,52 @@ def plot_rmse(
     bx.set_xlabel('t')
     
     plt.show()
+    
+def init(line): 
+    line.set_data([], [])
+    line.set_3d_properties([])
+    return 
+
+def animate(num, sol, line): 
+    num = (10 * num) % sol.shape[0]
+
+    line.set_data(sol[:num,0],sol[:num,1])    
+    line.set_3d_properties(sol[:num,2])    
+    return 
+ 
+ 
+def plot_animation(sol, r):
+    
+    
+    fig = plt.figure()
+    ax = fig.add_subplot( projection='3d')
+    #ax = plt.axes(projection='3d')
+    #ax.grid()
+
+    line, = ax.plot([ ], [ ], [ ], 'black', lw=1)
+    #graph = plt.plot(sol[:,0], sol[:,1], sol[:,2], 'black',
+                      #marker='.',markersize=0.5)
+
+    ax.set_title('Solution of the numerical integration - r = %i' %r)
+
+    ax.set_xlim(-15,15)
+    ax.set_ylim(-20,20)
+    ax.set_zlim(5,45)
+    ax.set_xlabel('x', labelpad=20)
+    ax.set_ylabel('y', labelpad=20)
+    ax.set_zlabel('z', labelpad=20)
+
+    
+# Creating the Animation object
+    anim = animation.FuncAnimation(fig, animate, init_func=init(line), 
+                            frames=1200, interval=10, fargs=(sol,line), 
+                            blit=False)
+    anim.save('Animation.gif')
+    plt.show()
+    
+    
+    
+    
+    
+    
+    
