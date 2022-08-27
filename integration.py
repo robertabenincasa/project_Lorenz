@@ -8,13 +8,14 @@ from lorenz import (lorenz, perturbation, difference,
                     RMSE, prediction, read_parameters)
 
 from plots import (xzgraph, plot_difference, plot_rmse,
-                   plot_3dsolution, plot_animation, animate)
+                   plot_3dsolution, plot_animation)
 
 from tabulate import tabulate
 from scipy.integrate import odeint
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
+import dataframe_image as dfi
 import configparser
 
 
@@ -122,14 +123,15 @@ pred_time = prediction(error, num_steps, dt, eps)
 xzgraph(sol_1[:,:,0],r1) 
 xzgraph(sol_2[:,:,0],r2) 
 
-#3D-plotting both chaotic and non-chaotic solution for
-#the unpertubed case 
+#3D-plotting non-chaotic solution for the unpertubed case 
 
-#plot_3dsolution(sol_1[:,:,0],r1)
-#plot_3dsolution(sol_2[:,:,0],r2)
+plot_3dsolution(sol_2[:,:,0],r2)
 
-plot_animation(sol_1[:,:,0],r1)
-#plot_animation(sol_2[:,:,0],r2)
+#3D animation of the chaotic solution for the unperturbed and a 
+#perturbed case 
+
+plot_animation(sol_1[:,:,0],sol_1[:,:,3],r1,eps[3])
+
 
 plot_difference(delta_x[:,0],t, r1) 
 plot_difference(delta_x[:,1],t, r2)
@@ -140,7 +142,7 @@ for i in range(1,len(eps)):
 
 
 #creating a table with the values of the perturbation and
-# of the corresponding prediction times
+# of the corresponding prediction times 
 
 data = np.column_stack((eps[1:len(eps)], pred_time))
 
@@ -150,8 +152,7 @@ print(tabulate(data, headers=col_names, tablefmt="fancy_grid"))
 
 
 df = pd.DataFrame(data, columns=['Perturbation','Prediction time'])
-print(df)
-
+dfi.export(df, 'table.png')
 #---------------------------Testing--------------------------#
 
 def test_valid_IC():
