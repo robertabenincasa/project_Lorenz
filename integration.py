@@ -125,11 +125,11 @@ xzgraph(sol_2[:,:,0],r2)
 #3D-plotting both chaotic and non-chaotic solution for
 #the unpertubed case 
 
-plot_3dsolution(sol_1[:,:,0],r1)
-plot_3dsolution(sol_2[:,:,0],r2)
+#plot_3dsolution(sol_1[:,:,0],r1)
+#plot_3dsolution(sol_2[:,:,0],r2)
 
 plot_animation(sol_1[:,:,0],r1)
-
+#plot_animation(sol_2[:,:,0],r2)
 
 plot_difference(delta_x[:,0],t, r1) 
 plot_difference(delta_x[:,1],t, r2)
