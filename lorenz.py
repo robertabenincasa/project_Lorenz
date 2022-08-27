@@ -8,13 +8,15 @@ import numpy as np
 
 def read_parameters(par: str) -> np.ndarray:
     
-    par = par.split(',')
+    par0 = par.split(',')
+    print(par0)
+    par1 = np.zeros(len(par0))
     
-    for i in range(len(par)):
+    for i in range(len(par0)):
         
-        par[i] = float(par[i])
+        par1[i] = float(par0[i])
         
-    return par
+    return par1
 
 
 def lorenz(
@@ -108,6 +110,7 @@ def perturbation(
     """
     
     IC = np.zeros((len(eps),3))
+    print(IC)
     IC[0,:] = init_cond
     for i in range(len(eps)):
         IC[i,:]=IC[0,:]+[eps[i],0.,0.]
