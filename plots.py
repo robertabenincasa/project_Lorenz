@@ -50,27 +50,79 @@ def xzgraph(
     ax.set_xlabel('x')
     ax.set_ylabel('z')
     
+    plt.savefig('xzplane_plot_r=%i'%r + '.png')
     plt.show()
     
 def plot_3dsolution(
         sol: np.ndarray,
         r: np.ndarray):
     
-    fig = plt.figure(figsize = (10,8))
+    fig = plt.figure(figsize = (10,10))
     ax = plt.axes(projection='3d')
     ax.grid()
     
     ax.plot3D(sol[:,0], sol[:,1],sol[:,2], 'black', marker='.',markersize=0.5)
-    ax.set_title('Solution of the numerical integration - r = %i' %r)
+    ax.set_title('Solution of the numerical integration - r = %i' %r,size = 20)
    
     
     ax.set_xlabel('x', labelpad=20)
     ax.set_ylabel('y', labelpad=20)
     ax.set_zlabel('z', labelpad=20)
-
+    
+    plt.savefig('3Dplot_r=%i'%r + '.png')
     plt.show()
+    
+    
+def plot_animation(sol, sol1, r, eps):
+    
+    fig = plt.figure(figsize=(10,10))
+    ax = fig.add_subplot( projection='3d')
+    
+    lines = []
+    colors = ['black','red']
+    
+    for index in range(2):
+        lobj, = ax.plot( [], [], [], color=colors[index],lw=1)
+        lines.append(lobj)
+    
+    
+    def init(): 
+    
+        for line in lines:
+            line.set_data([], [])
+            line.set_3d_properties([])
+            return 
+    
+    def animate(num): 
+        num = (40 * num) % sol.shape[0]
+        xlist = [sol[:num,0],sol1[:num,0]]
+        ylist = [sol[:num,1],sol1[:num,1]]
+        zlist = [sol[:num,2],sol1[:num,2]]
+        
+        for lnum,line in enumerate(lines):
+            line.set_data(xlist[lnum],ylist[lnum])    
+            line.set_3d_properties(zlist[lnum])    
+    
+        return 
+    
+    
+    ax.set_title('Solution of the numerical integration -'+'\n'+' r = %i'%r
+                 + ',$\epsilon$ =' + np.format_float_scientific(eps),size=20)
 
-
+    ax.set_xlim(-20,20)
+    ax.set_ylim(-20,20)
+    ax.set_zlim(5,50)
+    ax.set_xlabel('x', labelpad=20)
+    ax.set_ylabel('y', labelpad=20)
+    ax.set_zlabel('z', labelpad=20)
+    
+    
+# Creating the Animation object
+    anim = animation.FuncAnimation(fig, animate, init_func=init(), 
+                            frames=300, interval=2, blit=False)
+    
+    anim.save('Animation.gif')
+    plt.savefig('3Dplot_r=%i'%r + '_eps=' + np.format_float_scientific(eps)+'.png')
 
 def plot_difference(
         diff: np.ndarray,
@@ -87,8 +139,9 @@ def plot_difference(
     ax.set_xlabel('t')
     ax.legend(loc='best')
     
+    plt.savefig('difference_r=%i'%r + '.png')
     plt.show()
-
+    
 def plot_rmse(
         rmse: np.ndarray,
         t: np.ndarray,
@@ -104,13 +157,13 @@ def plot_rmse(
     
         
     ax.plot(t, rmse,'k', marker='.',markersize=1, 
-            label='eps = '+ np.format_float_scientific(e))
+            label='$\epsilon$ = '+ np.format_float_scientific(e))
     ax.axvline(pred_time, color = 'red', 
                label = 'prediction time = '+ np.format_float_scientific(pred_time))
     ax.set_title('Root Mean Square Error - r = %i'%r)
     
     bx.semilogy(t, rmse,'k',marker='.',markersize=1, 
-                label='eps = '+ np.format_float_scientific(e))
+                label='$\epsilon$ = '+ np.format_float_scientific(e))
     bx.axvline(pred_time, color = 'red', 
                label = 'prediction time = '+ np.format_float_scientific(pred_time))
     bx.set_title('Root Mean Square Error - Log scale - r = %i'%r)
@@ -121,53 +174,6 @@ def plot_rmse(
     bx.legend(loc='best')
     bx.set_xlabel('t')
     
+    plt.savefig('rmse_r=%i'%r + '_eps='+ np.format_float_scientific(e)+'.png')
     plt.show()
-    
-def init(line): 
-    line.set_data([], [])
-    line.set_3d_properties([])
-    return 
-
-def animate(num, sol, line): 
-    num = (40 * num) % sol.shape[0]
-
-    line.set_data(sol[:num,0],sol[:num,1])    
-    line.set_3d_properties(sol[:num,2])    
-    return 
- 
- 
-def plot_animation(sol, r):
-    
-    
-    fig = plt.figure()
-    ax = fig.add_subplot( projection='3d')
-    #ax = plt.axes(projection='3d')
-    #ax.grid()
-
-    line, = ax.plot([ ], [ ], [ ], 'black', lw=1)
-    #graph = plt.plot(sol[:,0], sol[:,1], sol[:,2], 'black',
-                      #marker='.',markersize=0.5)
-
-    ax.set_title('Solution of the numerical integration - r = %i' %r)
-
-    ax.set_xlim(-20,20)
-    ax.set_ylim(-20,20)
-    ax.set_zlim(5,50)
-    ax.set_xlabel('x', labelpad=20)
-    ax.set_ylabel('y', labelpad=20)
-    ax.set_zlabel('z', labelpad=20)
-
-    
-# Creating the Animation object
-    anim = animation.FuncAnimation(fig, animate, init_func=init(line), 
-                            frames=300, interval=5, fargs=(sol,line), 
-                            blit=False)
-    anim.save('Animation.gif')
-    plt.show()
-    
-    
-    
-    
-    
-    
     
