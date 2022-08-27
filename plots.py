@@ -129,7 +129,7 @@ def init(line):
     return 
 
 def animate(num, sol, line): 
-    num = (10 * num) % sol.shape[0]
+    num = (40 * num) % sol.shape[0]
 
     line.set_data(sol[:num,0],sol[:num,1])    
     line.set_3d_properties(sol[:num,2])    
@@ -150,9 +150,9 @@ def plot_animation(sol, r):
 
     ax.set_title('Solution of the numerical integration - r = %i' %r)
 
-    ax.set_xlim(-15,15)
+    ax.set_xlim(-20,20)
     ax.set_ylim(-20,20)
-    ax.set_zlim(5,45)
+    ax.set_zlim(5,50)
     ax.set_xlabel('x', labelpad=20)
     ax.set_ylabel('y', labelpad=20)
     ax.set_zlabel('z', labelpad=20)
@@ -160,7 +160,7 @@ def plot_animation(sol, r):
     
 # Creating the Animation object
     anim = animation.FuncAnimation(fig, animate, init_func=init(line), 
-                            frames=1200, interval=10, fargs=(sol,line), 
+                            frames=300, interval=5, fargs=(sol,line), 
                             blit=False)
     anim.save('Animation.gif')
     plt.show()
