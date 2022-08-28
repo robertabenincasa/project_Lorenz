@@ -47,6 +47,8 @@ $$
 
 For set B, the 2 trajectories relaxes to a single one after a brief oscillating transient and their difference tends to zero accordingly. Instead, for set A of parameters, the 2 trajectories suddenly distance each other after a transient in which they coincide and start oscillating independently in a chaotic manner and so does their difference. The RMSE increases in an exponential manner and saturates at the size a of the attractor. That means that the RMSE, i.e. the distance between the 2 trajectories, cannot be greater than the dimension of the attractor itself, since they are confined to it. Moreover, in a chaotic system, the distance between the two trajectories $\delta$(t) grows as $\delta(t)\sim\delta_{0}\exp{\lambda t}$, where $\lambda$ is the maximum Lyapunov exponent (approximately 0.9 for the Lorenz system), so the predictability time $t\sim\frac{1}{\lambda}ln(\frac{a}{\delta_{0}}$ is supposed to decrease with increasing initial distance. The predictability time is here arbitrarly defined as the time at which the RMSE became greater than 0.5 and is related to the sensitiveness to initial conditions typical of chaotic systems.
 
+## Ensemble of perturbation
+Finally, in order 
 ## The code
 Four different scripts are used in order to perform all the tasks previously described.
 First of all, the [configuration](https://github.com/robertabenincasa/project_Lorenz/master/config.py) file must be compiled by the user in order to set the values of the integration parameters and to specify the local path to the repository where the output of the code is supposed to be saved. They are then imported by the main code with the ConfigParser library. The parameters used in the simulation are:
