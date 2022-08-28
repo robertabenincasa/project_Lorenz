@@ -48,13 +48,34 @@ $$
 For set B, the 2 trajectories relaxes to a single one after a brief oscillating transient and their difference tends to zero accordingly. Moreover, the transient time is the same regardless of the imposed perturbation, while the amplitudes of the oscillations vary accordingly to the magnitude of $\epsilon$. Instead, for set A of parameters, the 2 trajectories suddenly distance each other after a transient in which they coincide and start oscillating independently in a chaotic manner and so does their difference. The RMSE increases in an exponential manner and saturates at the size a of the attractor. That means that the RMSE, i.e. the distance between the 2 trajectories, cannot be greater than the dimension of the attractor itself, since they are confined to it. That is consistent with expectations since, in a chaotic system, the distance between the two trajectories $\delta$(t) grows as $\delta(t)\sim\delta_{0}\exp{\lambda t}$, where $\lambda$ is the maximum Lyapunov exponent (approximately 0.9 for the Lorenz system), so the predictability time $t\sim\frac{1}{\lambda}ln(\frac{a}{\delta_{0}}$ is supposed to decrease with increasing initial distance. The predictability time is here arbitrarly defined as the time at which the RMSE became greater than 0.5.
 
 ## The code
-First of all, the [configuration](https://github.com/robertabenincasa/project_Lorenz/master/config.py) file must be compiled by the user in order to set the values of the integration parameters and to specify the local path to the repository where the output of the code is supposed to be saved. The parameters used in the simulation are:
-* num_steps: the number of steps for the integration;
-* dt: the step size;
-* set A, B: the values of the parameters of the Lorenz system as defined above;
-* IC: the initial condition of the system;
-* eps: the values of the perturbations applied to the system.
+Four different scripts are used in order to perform all the tasks previously described.
+First of all, the [configuration](https://github.com/robertabenincasa/project_Lorenz/master/config.py) file must be compiled by the user in order to set the values of the integration parameters and to specify the local path to the repository where the output of the code is supposed to be saved. They are then imported by the main code with the ConfigParser library. The parameters used in the simulation are:
+* *num_steps*: the number of steps for the integration;
+* *dt*: the step size;
+* *set A, B*: the values of the parameters of the Lorenz system as defined above;
+* *IC*: the initial condition of the system;
+* *eps*: the values of the perturbations applied to the system.
+Their values can be modified by the users according to their needs, while keeping in mind the analytical description of the system provided before. 
 
-Their values can be modified by the users according to their needs, while keeping in mind the analytical description of the system provided before.
+In order to integrate the system, it is necessary to run the [integration](https://github.com/robertabenincasa/project_Lorenz/master/integration.py) script, which also the main code of the project. The time integration of the Lorenz system is performed through the [scipy.integrate.odeint](https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.odeint.html) library. Note that the integration is performed for each set of parameters and for each initial conditions. The latter are obtained by perturbing the original initial condition *IC* through the perturbations defined in the array *eps*.
+Then, the difference between the x-component of the unperturbed trajectory and the first perturbed one are computed for both set of parameters, as a preliminary analysis. Subsequently, the Root Mean Square Error is computed for each value of the perturbation only for the chaotic solution, since it would have been uninformative for set B of parameters. Moreover, the predictability time is computed and stored in a table alongside with its corresponding value of $\epsilon$.
+
+In the [lorenz](https://github.com/robertabenincasa/project_Lorenz/master/lorenz.py) file all the functions used in the main code are defined:
+* *read_parameters*: converts a string composed of numbers separated by a comma into the corresponding np.array. It was realised in order to read the values of some parameters in the configuration file which are conceived to be vectors, but were written as strings.
+* *lorenz*: returns the time derivative of the 3 variables x, y and z as given by the Lorenz system.
+* *perturbation*: adds a perturbation to the first component of the initial condition of the simulation.
+* *difference*: performs the difference between the x-components of 2 trajectories of the system.
+* *RMSE*: performs the calculation of the root mean square error of the solution obtained from the perturbed ICs with respect to the unperturbed one.
+* *prediction*: finds the value of the prediction time for each value of the perturbation applied to the system.
+Further information are available as docstrings in the script itself.
+
+In the [plots](https://github.com/robertabenincasa/project_Lorenz/master/plots.py) file all the functions necessary to plot the results are defined:
+* *xzgraph*: produces a plot of the solution of the integration of the Lorenz system in the plane x, z. 
+* *plot_3dsolution*: produces a 3D plot of the solution of the integration of the Lorenz system.
+* *plot_animation*: produces an animation of the solution of the integration of the Lorenz system.
+* *plot_difference*: produces a plot of the difference as a function of time.
+* *plot_rmse*: produces a plot of the RMSE as a function of time.
+The graphs are automatically shown and saved by running the main code.
+
 
 
