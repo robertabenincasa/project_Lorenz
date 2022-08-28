@@ -31,7 +31,7 @@ config.set('Initial condition', 'IC', '9. , 10. , 20.')
 
 config.add_section('Perturbations')
 
-config.set('Perturbations', 'eps', '0. , 1E-5 , 1E-3 , 1.0')
+config.set('Perturbations', 'eps', '1E-5 , 1E-3 , 1.0')
 
 config.add_section('Paths to files')
 
