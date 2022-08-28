@@ -9,6 +9,13 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib.animation as animation
+import configparser
+
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+path = config.get('Paths to files', 'path')
 
 def xzgraph(
         sol: np.ndarray,
@@ -50,7 +57,7 @@ def xzgraph(
     ax.set_xlabel('x')
     ax.set_ylabel('z')
     
-    plt.savefig('xzplane_plot_r=%i'%r + '.png')
+    plt.savefig(path +'/xzplane_plot_r=%i'%r + '.png')
     plt.show()
     
 def plot_3dsolution(
@@ -69,7 +76,7 @@ def plot_3dsolution(
     ax.set_ylabel('y', labelpad=20)
     ax.set_zlabel('z', labelpad=20)
     
-    plt.savefig('3Dplot_r=%i'%r + '.png')
+    plt.savefig(path + '/3Dplot_r=%i'%r + '.png')
     plt.show()
     
     
@@ -121,8 +128,8 @@ def plot_animation(sol, sol1, r, eps):
     anim = animation.FuncAnimation(fig, animate, init_func=init(), 
                             frames=300, interval=2, blit=False)
     
-    anim.save('Animation.gif')
-    plt.savefig('3Dplot_r=%i'%r + '_eps=' + np.format_float_scientific(eps)+'.png')
+    anim.save(path + '/animation.gif')
+    plt.savefig(path + '/3Dplot_r=%i'%r + '_eps=' + np.format_float_scientific(eps)+'.png')
 
 def plot_difference(
         diff: np.ndarray,
@@ -139,7 +146,7 @@ def plot_difference(
     ax.set_xlabel('t')
     ax.legend(loc='best')
     
-    plt.savefig('difference_r=%i'%r + '.png')
+    plt.savefig(path + '/difference_r=%i'%r + '.png')
     plt.show()
     
 def plot_rmse(
@@ -174,6 +181,6 @@ def plot_rmse(
     bx.legend(loc='best')
     bx.set_xlabel('t')
     
-    plt.savefig('rmse_r=%i'%r + '_eps='+ np.format_float_scientific(e)+'.png')
+    plt.savefig(path + '/rmse_r=%i'%r + '_eps='+ np.format_float_scientific(e)+'.png')
     plt.show()
     
