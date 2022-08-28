@@ -6,17 +6,46 @@ Created on Sat Aug 20 23:07:33 2022
 """
 import numpy as np
 
-def read_parameters(par: str) -> np.ndarray:
+def read_parameters(par: str,
+                    ) -> np.ndarray:
+    """ This functions converts a string composed of numbers separated by a
+        comma into the corresponding np.array.
     
+        It was realised in order to read the values of some parameters in the 
+        configuration file which are conceived to be vectors, but were written 
+        as strings.
+   
+        Arguments:
+        ----------
+            par: string 
+            
+        Returns:
+        --------
+            par1: np.ndarray
+        
+        Raises:
+        -------
+            ValueError : if the string contains an elements that is not a
+            number, i.e. a letter or a symbol.
+            Print the error message: string is not valid, missing commas!
+            if there are no commas into the string to perform the .split .
+            
+    """
     par0 = par.split(',')
-    print(par0)
-    par1 = np.zeros(len(par0))
     
-    for i in range(len(par0)):
+    if ',' not in par:
         
-        par1[i] = float(par0[i])
+        print('string is not valid, missing commas!')
         
-    return par1
+    else:
+    
+        par1 = np.zeros(len(par0))
+    
+        for i in range(len(par0)):
+        
+            par1[i] = float(par0[i])
+        
+        return par1
 
 
 def lorenz(
@@ -109,11 +138,11 @@ def perturbation(
     
     """
     
-    IC = np.zeros((len(eps),3))
-    print(IC)
+    IC = np.zeros((1+len(eps),3))
+    
     IC[0,:] = init_cond
-    for i in range(len(eps)):
-        IC[i,:]=IC[0,:]+[eps[i],0.,0.]
+    for i in range(1,len(eps)+1):
+        IC[i,:]=IC[0,:]+[eps[i-1],0.,0.]
     
     return IC
 
@@ -233,15 +262,15 @@ def prediction(
                 
     
     """
-    pred_time = np.zeros(len(eps)-1)
+    pred_time = np.zeros(len(eps))
     
-    for i in range(1,len(eps)):
+    for i in range(0,len(eps)):
     
         for m in range(num_steps): 
         
             if error[m,i] > 0.5:
             
-                pred_time[i-1] = m * dt 
+                pred_time[i] = m * dt 
             
                 break 
         
