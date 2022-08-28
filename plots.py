@@ -184,3 +184,22 @@ def plot_rmse(
     plt.savefig(path + '/rmse_r=%i'%r + '_eps='+ np.format_float_scientific(e)+'.png')
     plt.show()
     
+def plot_ensemble(
+        L: np.ndarray,
+        R: np.ndarray,
+        t: np.ndarray):
+    
+    fig,(ax)=plt.subplots(1,1,figsize=(10,8))
+    ax.grid()
+    
+    ax.plot(t, L,'k', marker='.',markersize=1, 
+            label = 'L')
+    ax.plot(t, R,'r', marker='.',markersize=1, 
+            label = 'R')
+    ax.set_title('L vs R ', size = 20)
+    
+    ax.set_xlabel('t')
+    ax.legend(loc='best')
+    
+    plt.savefig(path + '/ensemble.png')
+    plt.show()
