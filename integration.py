@@ -27,31 +27,31 @@ config.read('config.ini')
 #-----------------------Parameters-------------------------#
 
 
-sigma = config.get('Parameters', 'sigma')
-sigma = float(sigma)
+sigma1 = config.get('Parameters', 'sigma')
+sigma = float(sigma1)
 
-b = config.get('Parameters', 'b')
-b = float(b)
+b1 = config.get('Parameters', 'b')
+b = float(b1)
 
-r1 = config.get('Parameters', 'r1') #chaotic solution
-r1 = float(r1)
+r_1 = config.get('Parameters', 'r1') #chaotic solution
+r1 = float(r_1)
 
-r2 =  config.get('Parameters', 'r2') #non-chaotic solution
-r2 = float(r2)
+r_2 =  config.get('Parameters', 'r2') #non-chaotic solution
+r2 = float(r_2)
 
 #-----------------Integration parameters-------------------#
 
-num_steps = config.get('Integration settings', 'num_steps')
-num_steps = int(num_steps)
+num_steps1 = config.get('Integration settings', 'num_steps')
+num_steps = int(num_steps1)
 
-dt = config.get('Integration settings', 'dt')
-dt = float(dt)
+dt1 = config.get('Integration settings', 'dt')
+dt = float(dt1)
 
-IC0 = config.get('Initial condition', 'IC') #initial condition
-IC0 = read_parameters(IC0)
+IC01 = config.get('Initial condition', 'IC') #initial condition
+IC0 = read_parameters(IC01)
 
-eps = config.get('Perturbations', 'eps') #perturbations
-eps = read_parameters(eps)
+eps1 = config.get('Perturbations', 'eps') #perturbations
+eps = read_parameters(eps1)
     
 
 t = np.linspace(0,num_steps,num_steps)*dt #time variable
@@ -65,9 +65,9 @@ IC = perturbation(IC0,eps) #perturbed initial conditions
 
 #The following are the solution for each time step,
 #for each variable and for each IC
-sol_1 = np.zeros((num_steps , 3, len(eps))) 
+sol_1 = np.zeros((num_steps , 3, len(eps)+1)) 
 #chaotic solution 
-sol_2 = np.zeros((num_steps , 3, len(eps)))
+sol_2 = np.zeros((num_steps , 3, len(eps)+1))
 #non-chaotic solution 
 
 
@@ -75,7 +75,7 @@ sol_2 = np.zeros((num_steps , 3, len(eps)))
 
 #Solutions for each value of r and for each IC
 
-for i in range(len(eps)):
+for i in range(len(eps)+1):
     
     sol_1[:,:,i] = odeint(lorenz,IC[i,:],t,args=(sigma,b,r1)) 
     #chaotic solution
@@ -89,26 +89,26 @@ for i in range(len(eps)):
 #Initializing arrays
 
 delta_x = np.zeros((num_steps, 2)) 
-#The difference was performed only between the solution of the unperturbed 
+#The difference is performed only between the solution of the unperturbed 
 #case and the one of the first perturbed case, as a preliminary analysis.
-#The difference was calculated for both chaotic and non-chaotic solution.
+#The difference is calculated for both chaotic and non-chaotic solution.
 
-error = np.zeros((num_steps, len(eps))) 
-#The RMSE was calculated for each perturbed case with r = 28. 
-#The same for the prediction time.
+error = np.zeros((num_steps, len(eps)))
+pred_time = np.zeros(3)
+#The RMSE and the prediction time are calculated for each perturbed case
+#with r = 28
 
-pred_time = np.zeros(3)                 
+                 
  
-
 #Calculating
 
 delta_x[:,0] = difference(sol_1[:,:,0], sol_1[:,:,1]) 
 delta_x[:,1] = difference(sol_2[:,:,0], sol_2[:,:,1])
 
 
-for i in range(1,len(eps)): 
+for i in range(1,len(eps)+1): 
     
-    error[:,i] = RMSE(sol_1[:,:,0], sol_1[:,:,i])
+    error[:,i-1] = RMSE(sol_1[:,:,0], sol_1[:,:,i])
     
     
 
@@ -129,22 +129,22 @@ plot_3dsolution(sol_2[:,:,0],r2)
 
 #3D animation of the chaotic solution for the unperturbed and a 
 #perturbed case 
-
-plot_animation(sol_1[:,:,0],sol_1[:,:,3],r1,eps[3])
+print('------This operation may require a few seconds-----')
+plot_animation(sol_1[:,:,0],sol_1[:,:,3],r1,eps[2])
 
 
 plot_difference(delta_x[:,0],t, r1) 
 plot_difference(delta_x[:,1],t, r2)
 
-for i in range(1,len(eps)): 
+for i in range(len(eps)): 
    
-    plot_rmse(error[:,i],t, r1, eps[i], pred_time[i-1])
-
+    plot_rmse(error[:,i],t, r1, eps[i], pred_time[i])
+    
 
 #creating a table with the values of the perturbation and
 # of the corresponding prediction times 
 
-data = np.column_stack((eps[1:len(eps)], pred_time))
+data = np.column_stack((eps, pred_time))
 
 col_names = ["Perturbation", "Prediction time"]
 
@@ -153,60 +153,5 @@ print(tabulate(data, headers=col_names, tablefmt="fancy_grid"))
 
 df = pd.DataFrame(data, columns=['Perturbation','Prediction time'])
 dfi.export(df, 'table.png')
-#---------------------------Testing--------------------------#
 
-def test_valid_IC():
-    
-    for i in range(3):  
-    
-        assert IC0[i] == IC[0,i]
 
-def test_valid_IC_1():
-    
-    for i in range(1,len(eps)):
-        
-        for m in range(2,3):
-         
-            assert IC0[m] == IC[i,m]
-        
- 
-def test_diff1():
-    
-    delta_x = difference(sol_1[:,:,0],sol_1[:,:,0])
-    
-    for i in range(num_steps):
-        
-        assert delta_x[i] == 0.    
- 
-    
-def test_RMSE():
-    
-    for i in range(num_steps):
-        
-        for j in range(1,len(eps)):  
-            
-            assert error[i,j] >= 0.
-            
-            
-def test_RMSE1():
-    
-    rmse = RMSE(sol_1[:,:,0],sol_1[:,:,0])
-    
-    for i in range(num_steps):
-        
-        assert rmse[i] == 0.
-        
-error1 = np.zeros((num_steps, len(eps)))
-error2 = np.ones((num_steps, len(eps)))
-
-def test_pred_time():
-    
-        time = prediction(error1, num_steps, dt, eps)
-        
-        assert np.all(time == 0.)
-        
-def test_pred_time1():
-    
-        time = prediction(error2, num_steps, dt, eps)
-        
-        assert np.all(time == 0.)
