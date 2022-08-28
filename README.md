@@ -1,5 +1,6 @@
 # Lorenz system
 
+The aim of the following project is to perform a numerical integration of the Lorenz system and to study it in presence of perturbations.
 The Lorenz system is a nonlinear, non-periodic, three-dimensional and deterministic system of ordinary differential equations. It was developed by Lorenz in 1963 as a simplified mathematical model for atmospheric convection, studying the case of a two-dimensional fluid layer uniformly warmed from below and cooled from above. In its canonical form it is written as:
 
 $$
@@ -24,7 +25,6 @@ $$
 
 For more information about the Lorenz system, see *Atmospheric modeling, data assimilation and predictability*, E. Kalney, 2003.
 
-The aim of the following project is to perform a numerical integration of the Lorenz system and to study it in presence of perturbations.
 
 ## Canonical system with no perturbation
 
@@ -32,7 +32,7 @@ First, the numerical integration up to t = 60 of the Lorenz system is performed,
 * set A: $\sigma$, *b*, *r* = (10, 8/3, 28)
 * set B: $\sigma$, *b*, *r* = (10, 8/3, 9)
 
-The 2 system show completely different behaviours. As expected, for set B of parameters, the solution converges to a single point attractor, whereas for set A of parameters, the system exhibits chaotic behaviour, i.e. of a strange attractor. Any two arbitrarily close alternative initial points on the attractor, after any of various numbers of iterations, will lead to points that are arbitrarily far apart, but still subject to the confines of the attractor, and after any of various other numbers of iterations will lead to points that are arbitrarily close together. Thus a dynamic system with a chaotic attractor is locally unstable yet globally stable: once in the attractor, nearby points diverge from one another but never depart from the attractor. 
+The 2 system show completely different behaviours. As expected, for set B of parameters, the solution converges to a single point attractor, whereas for set A of parameters, the system exhibits chaotic behaviour, i.e. of a strange attractor. Any two arbitrarily close alternative initial points on the attractor, after any of various numbers of iterations, will lead to points that are arbitrarily far apart, but still subject to the confines of the attractor, and after any of various other numbers of iterations will lead to points that are arbitrarily close together. Thus, a dynamic system with a chaotic attractor is locally unstable yet globally stable: once in the attractor, nearby points diverge from one another but never depart from the attractor. 
 Moreover, it is immediate to show the dissipative nature of the system in the second case, since it converges to a single point. Instead, in the former scenario this condition is satisfied because a strange attractor has a fractal structure, which has zero volume in phase space.
 
 ## Single perturbation of the initial condition
@@ -45,7 +45,7 @@ RMSE = \sqrt{\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{per})^{2}}
 \end{equation}
 $$
 
-For set B, the 2 trajectories relaxes to a single one after a brief oscillating transient and their difference tends to zero accordingly. Moreover, the transient time is the same regardless of the imposed perturbation, while the amplitudes of the oscillations vary accordingly to the magnitude of $\epsilon$. Instead, for set A of parameters, the 2 trajectories suddenly distance each other after a transient in which they coincide and start oscillating independently in a chaotic manner and so does their difference. The RMSE increases in an exponential manner and saturates at the size a of the attractor. That means that the RMSE, i.e. the distance between the 2 trajectories, cannot be greater than the dimension of the attractor itself, since they are confined to it. That is consistent with expectations since, in a chaotic system, the distance between the two trajectories $\delta$(t) grows as $\delta(t)\sim\delta_{0}\exp{\lambda t}$, where $\lambda$ is the maximum Lyapunov exponent (approximately 0.9 for the Lorenz system), so the predictability time $t\sim\frac{1}{\lambda}ln(\frac{a}{\delta_{0}}$ is supposed to decrease with increasing initial distance. The predictability time is here arbitrarly defined as the time at which the RMSE became greater than 0.5.
+For set B, the 2 trajectories relaxes to a single one after a brief oscillating transient and their difference tends to zero accordingly. Instead, for set A of parameters, the 2 trajectories suddenly distance each other after a transient in which they coincide and start oscillating independently in a chaotic manner and so does their difference. The RMSE increases in an exponential manner and saturates at the size a of the attractor. That means that the RMSE, i.e. the distance between the 2 trajectories, cannot be greater than the dimension of the attractor itself, since they are confined to it. Moreover, in a chaotic system, the distance between the two trajectories $\delta$(t) grows as $\delta(t)\sim\delta_{0}\exp{\lambda t}$, where $\lambda$ is the maximum Lyapunov exponent (approximately 0.9 for the Lorenz system), so the predictability time $t\sim\frac{1}{\lambda}ln(\frac{a}{\delta_{0}}$ is supposed to decrease with increasing initial distance. The predictability time is here arbitrarly defined as the time at which the RMSE became greater than 0.5 and is related to the sensitiveness to initial conditions typical of chaotic systems.
 
 ## The code
 Four different scripts are used in order to perform all the tasks previously described.
@@ -76,6 +76,7 @@ In the [plots](https://github.com/robertabenincasa/project_Lorenz/master/plots.p
 * *plot_difference*: produces a plot of the difference as a function of time.
 * *plot_rmse*: produces a plot of the RMSE as a function of time.
 The graphs are automatically shown and saved by running the main code.
+
 
 
 
