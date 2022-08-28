@@ -62,7 +62,7 @@ def xzgraph(
     
 def plot_3dsolution(
         sol: np.ndarray,
-        r: np.ndarray):
+        r: float):
     
     fig = plt.figure(figsize = (10,10))
     ax = plt.axes(projection='3d')
