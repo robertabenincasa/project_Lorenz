@@ -29,12 +29,12 @@ config.set('Parameters', 'r1', '28.0')
 config.set('Parameters', 'r2', '9.0')
 config.add_section('Initial condition')
 
-config.set('Initial condition', 'IC', '9. , 10. , 20.')
+config.set('Initial condition', 'IC', '9., 10., 20.')
 
 config.add_section('Perturbations')
 
 config.set('Perturbations', 'eps', '1E-5 , 1E-3 , 1.0')
-
+config.set('Perturbations', 'dim_eps', '3')
 config.add_section('Paths to files')
 
 config.set('Paths to files', 'path', '/Users/Lenovo/Desktop/SCproject/output')
