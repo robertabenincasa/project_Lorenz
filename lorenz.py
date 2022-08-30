@@ -5,6 +5,7 @@ Created on Sat Aug 20 23:07:33 2022
 @author: roberta benincasa
 """
 import numpy as np
+import sys
 
 def read_parameters(par: str,
                     ) -> np.ndarray:
@@ -27,24 +28,31 @@ def read_parameters(par: str,
         -------
             ValueError : if the string contains an elements that is not a
             number, i.e. a letter or a symbol.
-            Print the error message: string is not valid, missing commas!
+            ValueError: string is not valid, missing commas!
             if there are no commas into the string to perform the .split .
             
     """
-    par0 = par.split(',')
-    
+   
     if ',' not in par:
         
-        print('string is not valid, missing commas!')
+        raise SystemExit('Lorenz.py-read_parameters-cannot perform split,'+ 
+                         ' missing commas!'+'\n'+'If you give a string that'+ 
+                         'corresponds to a float as input this function'+ 
+                         'does not work. Modify the configuration file.')
         
-    else:
+        #sys.exit()
     
+    else:
+        
+        par0 = par.split(',')
+        
         par1 = np.zeros(len(par0))
     
         for i in range(len(par0)):
         
             par1[i] = float(par0[i])
-        
+      
+    
         return par1
 
 
@@ -53,7 +61,7 @@ def lorenz(
            t: np.ndarray,
            sigma: float,
            b: float,
-           r1: float,
+           r: float,
            ) -> list: 
     """" This function returns the time derivative of the 3 variables x, y 
          and z as given by the Lorenz system.
@@ -102,7 +110,7 @@ def lorenz(
     x,y,z=state_vector    
     
     x_dot = sigma * (y - x)
-    y_dot = r1 * x - x * z - y 
+    y_dot = r * x - x * z - y 
     z_dot = x * y - b * z
     
     return [x_dot,y_dot,z_dot]
