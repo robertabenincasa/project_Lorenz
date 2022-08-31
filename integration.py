@@ -154,6 +154,8 @@ for j in errors:
 
 #------------------------Plots & Tables--------------------------#
 
+path = config.get('Paths to files', 'path')
+
 #plotting both chaotic and non-chaotic solution for
 #the unpertubed case in the x,z plane
 
@@ -184,9 +186,7 @@ plot_ensemble(L,R,t1)
 # of the corresponding prediction times 
 
 data = np.column_stack((eps, pred_time))
-
 col_names = ["Perturbation", "Prediction time"]
-
 print(tabulate(data, headers=col_names, tablefmt="fancy_grid"))
 
 data1 = np.column_stack((pred_times[0], pred_times[1]))
@@ -195,6 +195,8 @@ print(tabulate(data1, headers=col_names1, tablefmt="fancy_grid"))
 
 
 df = pd.DataFrame(data, columns=['Perturbation','Prediction time'])
-dfi.export(df, 'table.png')
+dfi.export(df, path + '/table_predtime.png',fontsize = 30)
 
+df1 = pd.DataFrame(data1, columns=['Prediction time L','Prediction time R'])
+dfi.export(df1, path + '/table_L&R.png',fontsize = 30)
 
