@@ -32,7 +32,7 @@ First, the numerical integration of the Lorenz system is performed, with initial
 * set A: $\sigma$, *b*, *r* = (10, 8/3, 28)
 * set B: $\sigma$, *b*, *r* = (10, 8/3, 9)
 
-The 2 system show completely different behaviours. As expected, for set B of parameters, the solution converges to a single point attractor, whereas for set A of parameters, the system exhibits chaotic behaviour, i.e. of a strange attractor. Any two arbitrarily close alternative initial points on the attractor, after any of various numbers of iterations, will lead to points that are arbitrarily far apart, but still subject to the confines of the attractor, and after any of various other numbers of iterations will lead to points that are arbitrarily close together. Thus, a dynamic system with a chaotic attractor is locally unstable yet globally stable: once in the attractor, nearby points diverge from one another but never depart from the attractor. 
+The 2 systems show completely different behaviours. As expected, for set B of parameters, the solution converges to a single point attractor, whereas for set A of parameters, the system exhibits chaotic behaviour, i.e. of a strange attractor. Any two arbitrarily close alternative initial points on the attractor, after any of various numbers of iterations, will lead to points that are arbitrarily far apart, but still subject to the confines of the attractor, and after any of various other numbers of iterations will lead to points that are arbitrarily close together. Thus, a dynamic system with a chaotic attractor is locally unstable yet globally stable: once in the attractor, nearby points diverge from one another but never depart from the attractor. 
 Moreover, it is immediate to show the dissipative nature of the system in the second case, since it converges to a single point. Instead, in the former scenario this condition is satisfied because a strange attractor has a fractal structure, which has zero volume in phase space.
 
 ## Single perturbation of the initial condition
@@ -59,7 +59,7 @@ $$
 Consequently, it is possible to show that the RMSE of the ensemble mean is clearly smaller than the mean RMSE or the RMSE of any simulation. To be consistent, the corresponding predictability times for *L* and *R* are computed in order to show how the predictability time window is expanded. 
 ## The code
 Four different scripts are used in order to perform all the tasks previously described.
-First of all, the [configuration](https://github.com/robertabenincasa/project_Lorenz/master/config.py) file must be compiled by the user in order to set the values of the integration parameters and to specify the local path to the repository where the output of the code is supposed to be saved. They are then imported by the main code with the ConfigParser library. The parameters used in the simulation are:
+First of all, the [configuration](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.py) file must be compiled by the user in order to set the values of the integration parameters and to specify the local path to the repository where the output of the code is supposed to be saved. By running the configuration file, the [*config.ini*](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.ini) is produced which it is then imported by the main code with the ConfigParser library. The parameters used in the simulation are:
 * *num_steps*: the number of steps for the integration;
 * *dt*: the step size;
 * *N*: number of random perturbations;
@@ -69,10 +69,10 @@ First of all, the [configuration](https://github.com/robertabenincasa/project_Lo
 * *dim_eps*: number of perturbations *eps*.
 Their values can be modified by the users according to their needs, while keeping in mind the analytical description of the system provided before. 
 
-In order to integrate the system, it is necessary to run the [integration](https://github.com/robertabenincasa/project_Lorenz/master/integration.py) script, which also the main code of the project. The time integration of the Lorenz system is performed through the [scipy.integrate.odeint](https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.odeint.html) library. Note that the integration is performed for each set of parameters and for each initial conditions. The latter are obtained by perturbing the x-component of the original initial condition *IC* through the perturbations defined in the array *eps*. Then, the difference between the x-component of the unperturbed trajectory and the first perturbed one are computed for both set of parameters, as a preliminary analysis. Subsequently, the Root Mean Square Error is computed for each value of the perturbation only for the chaotic solution, since it would have been uninformative for set B of parameters. Moreover, the predictability time is computed and stored in a table alongside with its corresponding value of $\epsilon$.
+In order to obtain the entire output, it is necessary to run only the [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py) script, which is also the main code of the project. The time integration of the Lorenz system is performed through the [scipy.integrate.odeint](https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.odeint.html) library. Note that the integration is performed for each set of parameters and for each initial conditions. The latter are obtained by perturbing the x-component of the original initial condition *IC* through the perturbations defined in the array *eps*. Then, the difference between the x-component of the unperturbed trajectory and the first perturbed one are computed for both set of parameters, as a preliminary analysis. Subsequently, the Root Mean Square Error is computed for each value of the perturbation only for the chaotic solution, since it would have been uninformative for set B of parameters. Moreover, the predictability time is computed and stored in a table alongside with its corresponding value of $\epsilon$.
 Finally, the same procedure is repeated for the case of an ensemble of pertubations and the corresponding predictability times are stored in a second table.
 
-In the [lorenz](https://github.com/robertabenincasa/project_Lorenz/master/lorenz.py) file all the functions used in the main code are defined:
+In the [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py) file all the functions used in the main code are defined:
 * *read_parameters*: converts a string composed of numbers separated by a comma into the corresponding np.array. It was realised in order to read the values of some parameters in the configuration file which are conceived to be vectors, but were written as strings.
 * *lorenz*: returns the time derivative of the 3 variables x, y and z as given by the Lorenz system.
 * *perturbation*: adds a perturbation to the first component of the initial condition of the simulation.
@@ -81,16 +81,16 @@ In the [lorenz](https://github.com/robertabenincasa/project_Lorenz/master/lorenz
 * *prediction*: finds the value of the prediction time for each value of the perturbation applied to the system.
 Further information are available as docstrings in the script itself.
 
-In the [plots](https://github.com/robertabenincasa/project_Lorenz/master/plots.py) file all the functions necessary to plot the results are defined:
+In the [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/plots.py) file all the functions necessary to plot the results are defined:
 * *xzgraph*: produces a plot of the solution of the integration of the Lorenz system in the plane x, z. 
 * *plot_3dsolution*: produces a 3D plot of the solution of the integration of the Lorenz system.
 * *plot_animation*: produces an animation of the solution of the integration of the Lorenz system.
 * *plot_difference*: produces a plot of the difference as a function of time.
 * *plot_rmse*: produces a plot of the RMSE as a function of time;
 * *plot_ensemble*: produces a plot of *L* and *R* as a function of time.
-The graphs are automatically shown and saved in the repository [output](https://github.com/robertabenincasa/project_Lorenz/master/output) by running the main code.
+The graphs are automatically shown and saved in the repository [output](https://github.com/robertabenincasa/project_Lorenz/blob/master/output) by running the main code.
 
-Finally, in the [test](https://github.com/robertabenincasa/project_Lorenz/master/test.py) file all the functions defined in the lorenz file are tested through hypothesis testing in order to verify that they work properly.
+Finally, in the [test](https://github.com/robertabenincasa/project_Lorenz/blob/master/test.py) file all the functions defined in the lorenz file are tested through hypothesis testing in order to verify that they work properly.
 
 Here the resulting animation of the Lorenz system:
 ![](https://github.com/robertabenincasa/project_Lorenz/blob/master/output/animation.gif)
