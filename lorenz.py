@@ -5,7 +5,7 @@ Created on Sat Aug 20 23:07:33 2022
 @author: roberta benincasa
 """
 import numpy as np
-import sys
+
 
 def read_parameters(par: str,
                     ) -> np.ndarray:
@@ -40,7 +40,7 @@ def read_parameters(par: str,
                          'corresponds to a float as input this function'+ 
                          'does not work. Modify the configuration file.')
         
-        #sys.exit()
+        
     
     else:
         
