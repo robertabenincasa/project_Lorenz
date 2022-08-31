@@ -20,30 +20,7 @@ path = config.get('Paths to files', 'path')
 def xzgraph(
         sol: np.ndarray,
         r : float):
-    """ This function produces a plot of the solution of the integration of the 
-    Lorenz system in the plane x, z. 
-        
-        Arguments:
-        ----------
-        
-            sol : ndarray-like(float) 
-            It is the trajectory of the system in the 3 directions.
-            
-            r: scalar(float)
-            The value of the parameter r of the Lorenz system used in the 
-            simulation, i.e. the Rayleigh number. 
-            
-        Notes:
-        ------
-        The argument r is treated here as a variable in order to obtain the 
-        graph of the trajectory for each value of r used in the simulation.
-        
-        Raises:
-        -------
-        ValueError if the 2 components of the solutions do not have the same 
-        first dimension.
-            
-    """
+
     
     fig,(ax)=plt.subplots(1,1,figsize=(10,8))
     ax.grid()
@@ -87,9 +64,11 @@ def plot_animation(sol, sol1, r, eps):
     
     lines = []
     colors = ['black','red']
+    label = ['no perturbations','$\epsilon$ =' + np.format_float_scientific(eps)]
     
     for index in range(2):
-        lobj, = ax.plot( [], [], [], color=colors[index],lw=1)
+        lobj, = ax.plot( [], [], [], color=colors[index],lw=1,
+                        label = label[index])
         lines.append(lobj)
     
     
@@ -114,7 +93,7 @@ def plot_animation(sol, sol1, r, eps):
     
     
     ax.set_title('Solution of the numerical integration -'+'\n'+' r = %i'%r
-                 + ',$\epsilon$ =' + np.format_float_scientific(eps),size=20)
+               ,size=20)
 
     ax.set_xlim(-20,20)
     ax.set_ylim(-20,20)
@@ -122,15 +101,16 @@ def plot_animation(sol, sol1, r, eps):
     ax.set_xlabel('x', labelpad=20)
     ax.set_ylabel('y', labelpad=20)
     ax.set_zlabel('z', labelpad=20)
-    
-    
+    ax.legend(loc='best')
+   
 # Creating the Animation object
     anim = animation.FuncAnimation(fig, animate, init_func=init(), 
                             frames=300, interval=2, blit=False)
     
     anim.save(path + '/animation.gif')
+   # plt.show()
     plt.savefig(path + '/3Dplot_r=%i'%r + '_eps=' + np.format_float_scientific(eps)+'.png')
-
+    
 def plot_difference(
         diff: np.ndarray,
         t: np.ndarray,
