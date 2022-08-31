@@ -198,5 +198,5 @@ df = pd.DataFrame(data, columns=['Perturbation','Prediction time'])
 dfi.export(df, path + '/table_predtime.png',fontsize = 30)
 
 df1 = pd.DataFrame(data1, columns=['Prediction time L','Prediction time R'])
-dfi.export(df1, path + '/table_L&R.png',fontsize = 30)
+dfi.export(df1, path + '/table_LR.png',fontsize = 30)
 
