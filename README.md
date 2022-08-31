@@ -90,7 +90,7 @@ In the [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/pl
 * *plot_ensemble*: produces a plot of *L* and *R* as a function of time.
 The graphs are automatically shown and saved in the repository [output](https://github.com/robertabenincasa/project_Lorenz/blob/master/output) by running the main code.
 
-Finally, in the [test](https://github.com/robertabenincasa/project_Lorenz/blob/master/test.py) file all the functions defined in the lorenz file are tested through hypothesis testing in order to verify that they work properly.
+Finally, in the [test](https://github.com/robertabenincasa/project_Lorenz/blob/master/test.py) file all the functions defined in the [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py) file are tested through hypothesis testing in order to verify that they work properly.
 
 Here the resulting animation of the Lorenz system:
 ![](https://github.com/robertabenincasa/project_Lorenz/blob/master/output/animation.gif)
