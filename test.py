@@ -69,20 +69,24 @@ def test_read_parameters(par,par_1,par0):
     
     with pytest.raises(ValueError) as pytest_ve:
         read_parameters(string0)
-        assert pytest_ve.type == ValueError
+        assert pytest_ve.type == ValueError, ("Separation by commas is"
+        "made in the proper way")
     with pytest.raises(ValueError) as pytest_ve:
         read_parameters(string1)
-        assert pytest_ve.type == ValueError
+        assert pytest_ve.type == ValueError, ("Separation by commas is"
+        "made in the proper way")
     with pytest.raises(ValueError) as pytest_ve:
         read_parameters(string2)
-        assert pytest_ve.type == ValueError
+        assert pytest_ve.type == ValueError, ("Separation by commas is"
+        "made in the proper way")
     with pytest.raises(SystemExit) as pytest_se:
         read_parameters(string3)
-        assert pytest_se.type == SystemExit
+        assert pytest_se.type == SystemExit, ("Separation by commas is"
+        "made in the proper way")
     
 
-    assert type(read_parameters(string4)) == np.ndarray
-    assert type(read_parameters(string5)) == np.ndarray
+    assert type(read_parameters(string4)) == np.ndarray, "Incorrect use"
+    assert type(read_parameters(string5)) == np.ndarray, "Incorrect use"
 
 
 
@@ -105,7 +109,7 @@ def test_lorenz(state,sigma,b,r):
    """
     for i in range(3):
         
-        assert len(lorenz(state,t,sigma,b,r)[i]) == num_steps
+        assert len(lorenz(state,t,sigma,b,r)[i]) == num_steps, "Invalid result"
     
     
 @given(eps = exnp.arrays(np.dtype(float), dim_eps,elements = 
@@ -117,7 +121,8 @@ def test_lorenz(state,sigma,b,r):
 @settings(max_examples = 100)
 def test_valid_IC(IC0,eps):
     
-   """ This function tests the perturbation function generates valid ICs.
+   """ This function tests that the perturbation function generates
+       valid ICs.
    
        GIVEN: the original IC and the perturbation array
        WHEN: I apply the perturbation function using those as arguments
@@ -129,13 +134,13 @@ def test_valid_IC(IC0,eps):
        
    for i in range(3):  
         
-       assert IC0[i] == IC[0,i]
+       assert IC0[i] == IC[0,i], "Original IC is not preserved in the 0 row"
         
    for i in range(1,len(eps)+1):
          
        for m in range(2,3):
             
-           assert IC0[m] == IC[i,m]   
+           assert IC0[m] == IC[i,m], "Perturbation is not only on the 0 axis"
 
 
         
@@ -156,7 +161,8 @@ def test_diff(sol):
     
     for i in range(num_steps):
         
-        assert delta_x[i] == 0.    
+        assert delta_x[i] == 0., ("The difference function is not working"
+                                  "properly")
         
         
  
@@ -180,7 +186,8 @@ def test_RMSE(sol):
     for j in range(1,dim_eps+1):  
                
         sol2[:,:] = sol[:,:,j]
-        assert np.all(RMSE(sol1[:,:],sol2[:,:]) >= 0.)
+        assert np.all(RMSE(sol1[:,:],sol2[:,:]) >= 0.), ("The RMSE function"
+                            "is not working properly")
             
         
         
@@ -201,7 +208,8 @@ def test_RMSE1(sol):
     
     for i in range(num_steps):
         
-        assert rmse[i] == 0.
+        assert rmse[i] == 0., ("The RMSE function"
+                            "is not working properly")
         
 
 @given(eps = exnp.arrays(np.dtype(float), dim_eps,
@@ -213,7 +221,7 @@ def test_pred_time(eps):
     every time step, the predictability time is equal to zero too.
     
         GIVEN: a perturbation and a RMSE identically equal to zero
-        WHEN: I apply the prediction function with the given efinition of 
+        WHEN: I apply the prediction function with the given definition of 
         predictability time
         THEN: I expect to obtain zero, i.e. the RMSE never becomes greater
         than 0.5.
@@ -222,7 +230,8 @@ def test_pred_time(eps):
     error = np.zeros((num_steps, dim_eps+1))
     time = prediction(error, num_steps, dt, eps)
         
-    assert np.all(time == 0.)
+    assert np.all(time == 0.), ("The prediction function is not "
+    "working properly")
  
         
 @given(eps = exnp.arrays(np.dtype(float), dim_eps,
@@ -244,4 +253,5 @@ def test_pred_time1(eps):
     error = np.ones((num_steps, dim_eps+1))
     time = prediction(error, num_steps, dt, eps)
     
-    assert np.all(time == 0.)
+    assert np.all(time == 0.), ("The prediction function is not "
+    "working properly")
