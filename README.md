@@ -88,7 +88,7 @@ Further information are available as docstrings in the script itself.
 In the [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/plots.py) file all the functions necessary to plot the results are defined:
 * *xzgraph*: produces a plot of the solution of the integration of the Lorenz system in the plane x, z. 
 * *plot_3dsolution*: produces a 3D plot of the solution of the integration of the Lorenz system.
-* *plot_animation*: produces an animation of the solution of the integration of the Lorenz system.
+* *plot_animation*: produces an animation of the solution of the integration of the Lorenz system. Note that, in order to produce the animation, a suitable library is necessary, such as Pillow.
 * *plot_difference*: produces a plot of the difference as a function of time.
 * *plot_rmse*: produces a plot of the RMSE as a function of time;
 * *plot_ensemble*: produces a plot of *L* and *R* as a function of time.
