@@ -69,15 +69,18 @@ t1 = np.linspace(0,num_steps1,num_steps1)*dt
 
 #The following are the solution for each time step,
 #for each variable and for each IC
+
 sol_1 = np.zeros((num_steps , 3, len(eps)+1)) 
+
 #chaotic solution 
+
 sol_2 = np.zeros((num_steps , 3, len(eps)+1))
+
 #non-chaotic solution 
 
 
 IC = perturbation(IC0,eps) #perturbed initial conditions
 
-#Integrating
 
 #Solutions for each value of r and for each IC
 
@@ -94,18 +97,18 @@ for i in range(len(eps)+1):
 #Initializing arrays
 
 delta_x = np.zeros((num_steps, 2)) 
+
 #The difference is performed only between the solution of the unperturbed 
 #case and the one of the first perturbed case, as a preliminary analysis.
 #The difference is calculated for both chaotic and non-chaotic solution.
 
 error = np.zeros((num_steps, len(eps)))
 pred_time = np.zeros(len(eps))
+
 #The RMSE and the prediction time are calculated for each perturbed case
 #with r = 28
 
                  
- 
-#Calculating
 
 delta_x[:,0] = difference(sol_1[:,:,0], sol_1[:,:,1]) 
 delta_x[:,1] = difference(sol_2[:,:,0], sol_2[:,:,1])
@@ -117,11 +120,13 @@ for i in range(1,len(eps)+1):
 pred_time = prediction(error, num_steps, dt, eps)
 
 #--------------------------Ensemble------------------------------#
-#Same procedure but with an ensemble of perturbation
-eps1 = np.zeros(N)
 
+#Same procedure but with an ensemble of perturbation
+
+eps1 = np.zeros(N)
 sol_ens = np.zeros((num_steps1 , 3, len(eps1)))
 error_ens = np.zeros((num_steps1, len(eps1)))
+
 np.random.seed(44)
 
 for k in range(len(eps1)):
@@ -136,10 +141,15 @@ for i in range(1,len(eps1)):
     error_ens[:,i-1] = RMSE(sol_1[0:num_steps1,:,0], sol_ens[:,:,i])
 
 #R is the mean of the RMSEs and L is the RMSE of the mean
-R = np.mean(error_ens,1)    
+
+R = np.mean(error_ens,1) 
+   
 pred_times = np.zeros(2)
+
 sol_ave = np.mean(sol_ens,2)
+
 L = RMSE(sol_1[0:num_steps1,:,0], sol_ave[:,:])
+
 errors = [L, R]
 for j in errors:
     
