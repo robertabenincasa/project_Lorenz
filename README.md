@@ -60,6 +60,7 @@ Consequently, it is possible to show that the RMSE of the ensemble mean is clear
 ## The code
 Four different scripts are used in order to perform all the tasks previously described.
 First of all, the [configuration](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.py) file must be compiled by the user in order to set the values of the integration parameters and to specify the local path to the repository where the output of the code is supposed to be saved. By running the configuration file, the [*config.ini*](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.ini) is produced which it is then imported by the main code with the ConfigParser library. 
+
 The parameters used in the simulation are:
 * *num_steps*: the number of steps for the integration;
 * *dt*: the step size;
