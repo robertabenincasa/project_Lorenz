@@ -5,16 +5,15 @@ Created on Sun Aug 21 12:58:03 2022
 @author: roberta benincasa
 """
 from lorenz import (lorenz, perturbation, difference,
-                    RMSE, prediction, read_parameters)
+                     RMSE, prediction, read_parameters, ensemble)
 
 from plots import (xzgraph, plot_difference, plot_rmse,
-                   plot_3dsolution, plot_animation,plot_ensemble)
+                   plot_3dsolution, plot_animation,plot_ensemble, plot_ensemble_trajectories)
 
 from tabulate import tabulate
 from scipy.integrate import odeint
 import numpy as np
 import pandas as pd
-from pandas import DataFrame
 import dataframe_image as dfi
 import configparser
 
@@ -44,9 +43,6 @@ r2 = float(r_2)
 num_steps0 = config.get('Integration settings', 'num_steps')
 num_steps = int(num_steps0)
 
-num_steps2 = config.get('Integration settings', 'num_steps1')
-num_steps1 = int(num_steps2)
-
 dt1 = config.get('Integration settings', 'dt')
 dt = float(dt1)
 
@@ -61,7 +57,7 @@ eps = read_parameters(eps1)
     
 
 t = np.linspace(0,num_steps,num_steps)*dt #time variable
-t1 = np.linspace(0,num_steps1,num_steps1)*dt
+
 
 #-----------------------Integration------------------------#
 
@@ -110,8 +106,8 @@ pred_time = np.zeros(len(eps))
 
                  
 
-delta_x[:,0] = difference(sol_1[:,:,0], sol_1[:,:,1]) 
-delta_x[:,1] = difference(sol_2[:,:,0], sol_2[:,:,1])
+delta_x[:,0] = difference(sol_1[:,:,0], sol_1[:,:,2]) 
+delta_x[:,1] = difference(sol_2[:,:,0], sol_2[:,:,2])
 
 for i in range(1,len(eps)+1): 
     
@@ -123,37 +119,38 @@ pred_time = prediction(error, num_steps, dt, eps)
 
 #Same procedure but with an ensemble of perturbation
 
-eps1 = np.zeros(N)
-sol_ens = np.zeros((num_steps1 , 3, len(eps1)))
-error_ens = np.zeros((num_steps1, len(eps1)))
+eps_ens = np.zeros(N)
+sol_ens = np.zeros((num_steps , 3, N))
+error_ens = np.zeros((num_steps, N))
 
-np.random.seed(44)
+np.random.seed(42)
 
-for k in range(len(eps1)):
+for k in range(N):
        
-        eps1[k] = np.random.random()*1.50 - 0.75
+        eps_ens[k] = np.random.random()*1.50 - 0.75
 
-IC_ens = perturbation(IC0,eps1)
+IC_ens = perturbation(IC0,eps_ens)
 
-for i in range(1,len(eps1)):
+for i in range(N):
     
-    sol_ens[:,:,i] = odeint(lorenz,IC_ens[i,:],t1,args=(sigma,b,r1)) 
-    error_ens[:,i-1] = RMSE(sol_1[0:num_steps1,:,0], sol_ens[:,:,i])
+    sol_ens[:,:,i] = odeint(lorenz,IC_ens[i,:],t,args=(sigma,b,r1)) 
+    error_ens[:,i] = RMSE(sol_1[:,:,0], sol_ens[:,:,i])
 
 #R is the mean of the RMSEs and L is the RMSE of the mean
 
-R = np.mean(error_ens,1) 
+R = np.mean(error_ens, 1) 
    
+spread, sol_ave = ensemble(sol_ens)        
+
+L = RMSE(sol_1[:,:,0], sol_ave[:,:])
+
 pred_times = np.zeros(2)
 
-sol_ave = np.mean(sol_ens,2)
-
-L = RMSE(sol_1[0:num_steps1,:,0], sol_ave[:,:])
-
 errors = [L, R]
+
 for j in errors:
     
-    for m in range(num_steps1): 
+    for m in range(num_steps): 
 
         if j[m] > 0.5:
     
@@ -178,19 +175,19 @@ plot_3dsolution(sol_2[:,:,0],r2)
 
 #3D animation of the chaotic solution for the unperturbed and a 
 #perturbed case 
-print('------This operation may require a few seconds-----')
+print('------This operation may require a few seconds------')
 plot_animation(sol_1[:,:,0],sol_1[:,:,3],r1,eps[2])
 
 
-plot_difference(delta_x[:,0],t, r1) 
-plot_difference(delta_x[:,1],t, r2)
+plot_difference(delta_x[:,0],delta_x[:,1],t) 
+
 
 for i in range(len(eps)): 
    
     plot_rmse(error[:,i],t, r1, eps[i], pred_time[i])
     
-plot_ensemble(L,R,t1)
-
+plot_ensemble(L,R,t)
+plot_ensemble_trajectories(sol_ave,spread,t)
 
 #creating a table with the values of the perturbation and
 # of the corresponding prediction times 
