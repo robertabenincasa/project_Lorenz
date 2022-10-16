@@ -9,8 +9,8 @@ import numpy as np
 
 def read_parameters(par: str,
                     ) -> np.ndarray:
-    """ This functions converts a string composed of numbers separated by a
-        comma into the corresponding np.array.
+    """ This functions converts a string composed of numbers separated by
+        commas into the corresponding np.array.
     
         It was realised in order to read the values of some parameters in the 
         configuration file which are conceived to be vectors, but were written 
@@ -28,17 +28,20 @@ def read_parameters(par: str,
         -------
             ValueError : if the string contains an elements that is not a
             number, i.e. a letter or a symbol.
-            ValueError: string is not valid, missing commas!
+            FormatError: string is not valid, missing commas!
             if there are no commas into the string to perform the .split .
             
+        Note:
+        -----
+             If the input string is composed of a single number, both integer 
+             or float, the FormatError would be raised anyway. This function was
+             conceived for extracting arrays only.
     """
    
     if ',' not in par:
         
-        raise SystemExit('Lorenz.py-read_parameters-cannot perform split,'+ 
-                         ' missing commas!'+'\n'+'If you give a string that'+ 
-                         'corresponds to a float as input this function'+ 
-                         'does not work. Modify the configuration file.')
+        raise ValueError('Lorenz.py-read_parameters: cannot perform split,'+ 
+                         ' missing commas!')
         
         
     
@@ -219,10 +222,59 @@ def RMSE(
         
     
     """
+
     
-    rsme = np.sqrt((sol1[:,0] - sol2[:,0])**2 + (sol1[:,1]-sol2[:,1])**2 + (sol1[:,2]-sol2[:,2])**2)
+        
+    rmse = np.sqrt((sol1[:,0] - sol2[:,0])**2 + (sol1[:,1]-sol2[:,1])**2 + (sol1[:,2]-sol2[:,2])**2)
     
-    return rsme
+    return rmse
+
+def ensemble(sol_ens: np.ndarray,
+                    ) -> np.ndarray:
+
+    """This function performs the calculation of the ensemble mean and of the 
+       ensemble spread.
+        
+           Arguments:
+           ----------
+               num_steps : int
+               Number of timesteps for the integration.
+               
+               sol_ens: ndarray-like(float)
+               Trajectories of the ensemble.
+               
+               N: int
+               Number of ensemble members
+               
+           Returns:
+           --------
+               spread : ndarray-like(float)
+               Ensemble spread as a function of time for all 3 spatial components.
+               It is defined as the standard deviation of the ensemble members
+               at everytime step.
+               
+               sol_ave: ndarray-like(float)
+               Ensemble mean as a function of time for all 3 spatial components.
+        
+    
+    """
+    N = sol_ens.shape[2]
+    num_steps = sol_ens.shape[0]
+    
+    spread = np.zeros((num_steps,3))
+    S = np.zeros((3,N))    
+
+    sol_ave = np.mean(sol_ens, 2)
+    
+    for i in range(num_steps):
+    
+        for j in range(3):
+    
+            S[j,:] = np.array([sol_ens[i,j,m] for m in range(N)])
+    
+            spread[i,j] = np.std(S[j,:])
+            
+    return spread, sol_ave
 
 
 def prediction(
