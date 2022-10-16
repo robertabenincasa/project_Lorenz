@@ -17,7 +17,6 @@ config.read('config.ini')
 config.add_section('Integration settings')
 
 config.set('Integration settings', 'num_steps', '12000')
-config.set('Integration settings', 'num_steps1', '1000')
 config.set('Integration settings', 'dt', '0.005')
 config.set('Integration settings', 'N', '100')
 
