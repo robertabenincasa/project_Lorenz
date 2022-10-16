@@ -5,7 +5,7 @@ Created on Sun Aug 28 18:15:18 2022
 @author: robertabenincasa
 """
 from lorenz import (lorenz, perturbation, difference,
-                    RMSE, prediction, read_parameters)
+                    RMSE, prediction, read_parameters, ensemble)
 import numpy as np
 import configparser
 from hypothesis import (given, settings)
@@ -25,16 +25,21 @@ num_steps = int(num_steps1)
 dim_eps1 = config.get('Perturbations', 'dim_eps')
 dim_eps = int(dim_eps1)
 
+N1 = config.get('Integration settings', 'N')
+N = int(N1)
+
 t = np.linspace(0,num_steps,num_steps)*dt
+
+
 #--------------------------------------------------------------#
 
 
 
 @given(par = st.floats(allow_nan=None, allow_infinity=None),
        par_1 = st.integers(min_value=0),
-       par0 = st.characters(whitelist_categories='LMPSZC'))
+       par_2 = st.characters(whitelist_categories='LMPSZC'))
 @settings(max_examples = 100)
-def test_read_parameters(par,par_1,par0):
+def test_read_parameters(par,par_1,par_2):
     """ This function tests that the read_parameters function used to read 
     the parameters from the configuration file works properly.
     In particular, it verifies that an error would be raised except for the
@@ -50,21 +55,19 @@ def test_read_parameters(par,par_1,par0):
         separated by commas would raise a ValueError.
         string1,2 and 3: test that a string made of floats not properly 
         separated by commas would raise a ValueError for the first 2 and a 
-        SystemExit error for the last.
+        FormatError for the last.
         string 4 and 5 test that applying the read_parameters function to 
         properly written strings would return a valid result, i.e. 
         a np.ndarray.
     """
     
-    par1 = str(par_1)
-    par2 = str(par)
-    string0 =par0+','+par0
-    string1 = par2+','+','
-    string2 = ','+par1
-    string3 = par2+par2
+    string0 =str(par_2)+','+str(par_2)
+    string1 = str(par)+','+','
+    string2 = ','+str(par_1)
+    string3 = str(par)+str(par)
     
-    string4 = par1+par1+','+par2
-    string5 = par2 + ','+par2
+    string4 = str(par_1)+str(par_1)+','+str(par)
+    string5 = str(par) + ','+str(par)
         
     
     with pytest.raises(ValueError) as pytest_ve:
@@ -79,9 +82,9 @@ def test_read_parameters(par,par_1,par0):
         read_parameters(string2)
         assert pytest_ve.type == ValueError, ("Separation by commas is"
         "made in the proper way")
-    with pytest.raises(SystemExit) as pytest_se:
+    with pytest.raises(ValueError) as pytest_se:
         read_parameters(string3)
-        assert pytest_se.type == SystemExit, ("Separation by commas is"
+        assert pytest_se.type == ValueError, ("Separation by commas is"
         "made in the proper way")
     
 
@@ -192,7 +195,7 @@ def test_RMSE(sol):
         
         
 @given(sol = exnp.arrays(np.dtype(float),(num_steps,3),
-        elements = st.floats(min_value = -100,max_value= 100,allow_nan=False, allow_infinity=False)))
+       elements = st.floats(min_value = -100, max_value= 100,allow_nan=False, allow_infinity=False)))
 @settings(max_examples = 100)           
 def test_RMSE1(sol):
     """ This function tests that RMSE between two identical trajectory
@@ -211,6 +214,48 @@ def test_RMSE1(sol):
         assert rmse[i] == 0., ("The RMSE function"
                             "is not working properly")
         
+        
+        
+@given(sol = exnp.arrays(np.dtype(float),(100,3,1),
+        elements = st.floats(min_value = -100,max_value= 100,allow_nan=False, allow_infinity=False)))
+@settings(max_examples = 100, deadline=None)           
+def test_ensemble_mean(sol):
+    """ This function tests that RMSE between two identical trajectory
+    is equal to zero.
+    
+        GIVEN: a trajectory
+        WHEN: I apply the RMSE function using the former for both
+        arguments
+        THEN: I expect to obtain zero at every time 
+    """
+    
+    mean = ensemble(sol)[1]
+    
+    assert np.array_equal(mean, sol[:,:,0], equal_nan=False) == True, ("The ensemble function"+
+                           "is not working properly")
+          
+    
+     
+@given(sol = exnp.arrays(np.dtype(float),(100,3,1),
+        elements = st.floats(min_value = -100,max_value= 100,allow_nan=False, allow_infinity=False)))
+@settings(max_examples = 100, deadline=None)           
+def test_ensemble_spread(sol):
+    """ This function tests that RMSE between two identical trajectory
+    is equal to zero.
+    
+        GIVEN: a trajectory
+        WHEN: I apply the RMSE function using the former for both
+        arguments
+        THEN: I expect to obtain zero at every time 
+    """
+    
+    spread = ensemble(sol)[0]
+          
+    assert np.all(spread == 0.), ("The ensemble function"+
+                            "is not working properly")
+        
+
+
 
 @given(eps = exnp.arrays(np.dtype(float), dim_eps,
         elements = st.floats(min_value = -10,max_value= 10,allow_nan=False,
