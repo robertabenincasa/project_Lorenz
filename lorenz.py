@@ -230,7 +230,7 @@ def RMSE(
     return rmse
 
 def ensemble(sol_ens: np.ndarray,
-                    ) -> np.ndarray:
+                    ) -> tuple:
 
     """This function performs the calculation of the ensemble mean and of the 
        ensemble spread.
