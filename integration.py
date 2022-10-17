@@ -61,7 +61,6 @@ t = np.linspace(0,num_steps,num_steps)*dt #time variable
 
 #-----------------------Integration------------------------#
 
-#Initializing arrays
 
 #The following are the solution for each time step,
 #for each variable and for each IC
@@ -88,9 +87,7 @@ for i in range(len(eps)+1):
     #non-chaotic solution
 
 
-#-------------------------Analysis-------------------------#
-
-#Initializing arrays
+#-------------------------ANALYSIS-------------------------#
 
 delta_x = np.zeros((num_steps, 2)) 
 
@@ -102,7 +99,7 @@ error = np.zeros((num_steps, len(eps)))
 pred_time = np.zeros(len(eps))
 
 #The RMSE and the prediction time are calculated for each perturbed case
-#with r = 28
+#with r = 28 because it would be trivial for r = 9.
 
                  
 
@@ -115,9 +112,10 @@ for i in range(1,len(eps)+1):
     
 pred_time = prediction(error, num_steps, dt, eps)
 
-#--------------------------Ensemble------------------------------#
+#--------------------------ENSEMBLE------------------------------#
 
-#Same procedure but with an ensemble of perturbation
+#Same procedure but with an ensemble of perturbations: showing how to improve
+#the prediction!
 
 eps_ens = np.zeros(N)
 sol_ens = np.zeros((num_steps , 3, N))
@@ -136,7 +134,9 @@ for i in range(N):
     sol_ens[:,:,i] = odeint(lorenz,IC_ens[i,:],t,args=(sigma,b,r1)) 
     error_ens[:,i] = RMSE(sol_1[:,:,0], sol_ens[:,:,i])
 
-#R is the mean of the RMSEs and L is the RMSE of the mean
+#R is the mean of the RMSEs and L is the RMSE of the mean.
+#The aim is to compare the 2 and show how introducing an ensemble of simulations
+#allows to halve the RMSE with respect to the one relative to a single simulation.
 
 R = np.mean(error_ens, 1) 
    
@@ -169,12 +169,13 @@ path = config.get('Paths to files', 'path')
 xzgraph(sol_1[:,:,0],r1) 
 xzgraph(sol_2[:,:,0],r2) 
 
-#3D-plotting non-chaotic solution for the unpertubed case 
+
 
 plot_3dsolution(sol_2[:,:,0],r2)
 
 #3D animation of the chaotic solution for the unperturbed and a 
 #perturbed case 
+print('---------------Preparing the animation--------------')
 print('------This operation may require a few seconds------')
 plot_animation(sol_1[:,:,0],sol_1[:,:,3],r1,eps[2])
 
