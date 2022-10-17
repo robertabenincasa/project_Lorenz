@@ -6,7 +6,6 @@ Created on Sun Aug 21 17:11:48 2022
 """
 
 from configparser import ConfigParser
-import numpy as np
 config = ConfigParser()
 
 #eps = np.array([ 0. , 1E-5 , 1E-3 , 1.0 ])
