@@ -6,7 +6,6 @@ Created on Sun Aug 21 13:40:54 2022
 """
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib.animation as animation
 import configparser
@@ -194,19 +193,19 @@ def plot_ensemble_trajectories(
     fig,((ax),(ax1),(ax2))=plt.subplots(3,1, sharex=True, figsize=(10,8))
     
     ax.grid()
-    ax.plot(t, sol[:,0] ,'royalblue', marker='.',markersize=1, label = 'x - component')
+    ax.plot(t, sol[:,0] ,'royalblue', marker='.',markersize=1, label = 'X')
     ax.fill_between(t,sol[:,0] - S[:,0],sol[:,0] + S[:,0],alpha=0.3, facecolor='royalblue')
     ax.set_title('Ensemble mean and ensemble spread', size = 20)
     ax.legend(loc='best')
     
     ax1.grid()
-    ax1.plot(t,sol[:,1] ,'purple', marker='.',markersize=1,label = 'y - component')
+    ax1.plot(t,sol[:,1] ,'purple', marker='.',markersize=1,label = 'Y')
     ax1.fill_between(t,sol[:,1] - S[:,1],sol[:,1] + S[:,1],alpha=0.3, facecolor='purple')
     ax1.legend(loc='best')
     
     
     ax2.grid()
-    ax2.plot(t,sol[:,2] ,'violet', marker='.',markersize=1, label = 'z - component')
+    ax2.plot(t,sol[:,2] ,'violet', marker='.',markersize=1, label = 'Z')
     ax2.fill_between(t,sol[:,2] - S[:,2],sol[:,2] + S[:,2],alpha=0.3, facecolor='violet')
     ax2.set_xlabel('t')
     ax2.legend(loc='best')
