@@ -81,6 +81,7 @@ In the [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/l
 * *perturbation*: adds a perturbation to the first component of the initial condition of the simulation.
 * *difference*: performs the difference between the x-components of 2 trajectories of the system.
 * *RMSE*: performs the calculation of the root mean square error of the solution obtained from the perturbed ICs with respect to the unperturbed one.
+* *ensemble*: performs the calculation of the ensemble mean and of the ensemble spread;
 * *prediction*: finds the value of the prediction time for each value of the perturbation applied to the system.
 
 Further information are available as docstrings in the script itself.
@@ -91,6 +92,7 @@ In the [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/pl
 * *plot_animation*: produces an animation of the solution of the integration of the Lorenz system. Note that, in order to produce the animation, a suitable library is necessary, such as Pillow.
 * *plot_difference*: produces a plot of the difference as a function of time.
 * *plot_rmse*: produces a plot of the RMSE as a function of time;
+* *plot_ensemble_trajectories*: produces a plot of the ensemble mean and its corresponding ensemble spread for each of the 3 variables;
 * *plot_ensemble*: produces a plot of *L* and *R* as a function of time.
 
 The graphs are automatically shown and saved in the repository [output](https://github.com/robertabenincasa/project_Lorenz/blob/master/output) by running the main code.
