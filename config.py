@@ -8,9 +8,6 @@ Created on Sun Aug 21 17:11:48 2022
 from configparser import ConfigParser
 config = ConfigParser()
 
-#eps = np.array([ 0. , 1E-5 , 1E-3 , 1.0 ])
-#IC0 = np.array([ 9. , 10. , 20. ])
-
 config.read('config.ini')
 
 config.add_section('Integration settings')
@@ -31,7 +28,7 @@ config.set('Initial condition', 'IC', '9., 10., 20.')
 
 config.add_section('Perturbations')
 
-config.set('Perturbations', 'eps', '1E-5 , 1E-3 , 1.0')
+config.set('Perturbations', 'eps', '1E-5 , 1E-4, 1E-3, 1E-2, 1E-1, 1.0')
 config.set('Perturbations', 'dim_eps', '3')
 config.add_section('Paths to files')
 
