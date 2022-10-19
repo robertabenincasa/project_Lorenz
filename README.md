@@ -45,7 +45,7 @@ RMSE = \sqrt{\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{per})^{2}}
 \end{equation}
 $$
 
-For set B, the 2 trajectories relaxes to a single one after a brief oscillating transient and their difference tends to zero accordingly. Instead, for set A of parameters, the 2 trajectories suddenly distance each other after a transient in which they coincide and start oscillating independently in a chaotic manner and so does their difference. The RMSE increases in an exponential manner and saturates at the size a of the attractor. That means that the RMSE, i.e. the distance between the 2 trajectories, cannot be greater than the dimension of the attractor itself, since they are confined to it. Moreover, in a chaotic system, the distance between the two trajectories $\delta$(t) grows as $\delta(t)\sim\delta_{0}\exp{\lambda t}$, where $\lambda$ is the maximum Lyapunov exponent (approximately 0.9 for the Lorenz system), so the predictability time $t\sim\frac{1}{\lambda}ln(\frac{a}{\delta_{0}})$ is supposed to decrease with increasing initial distance. The predictability time is here arbitrarly defined as the time at which the RMSE became greater than 0.5 and is related to the sensitiveness to initial conditions typical of chaotic systems.
+For set B, the 2 trajectories relaxes to a single one after a brief oscillating transient and their difference tends to zero accordingly. Instead, for set A of parameters, the 2 trajectories suddenly distance each other after a transient in which they coincide and start oscillating independently in a chaotic manner and so does their difference. The RMSE increases in an exponential manner and saturates at the size a of the attractor. That means that the RMSE, i.e. the distance between the 2 trajectories, cannot be greater than the dimension of the attractor itself, since they are confined to it. Moreover, in a chaotic system, the distance between the two trajectories $\delta$(t) grows as $\delta(t)\sim\delta_{0}\exp{\lambda t}$, where $\lambda$ is the maximum Lyapunov exponent (approximately 0.9 for the Lorenz system), so the predictability time $t\sim\frac{1}{\lambda}ln(\frac{a}{\delta_{0}})$ is supposed to decrease with increasing initial distance following a logarithmic relation. The predictability time is here arbitrarly defined as the time at which the RMSE became greater than 0.5 and is related to the sensitiveness to initial conditions typical of chaotic systems.
 
 ## Ensemble of perturbations
 Finally, in order to show how the predictability of such a chaotic system can be improved, ensemble forecasting is considered. An ensemble of *N* random generated perturbations is applied as before and the Lorenz system is integrated for each IC. Then, the RMSE of the ensemble mean (*L*) and the mean RMSE (*R*) are computed as a function of time:
@@ -82,9 +82,9 @@ In the [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/l
 * *difference*: performs the difference between the x-components of 2 trajectories of the system.
 * *RMSE*: performs the calculation of the root mean square error of the solution obtained from the perturbed ICs with respect to the unperturbed one.
 * *ensemble*: performs the calculation of the ensemble mean and of the ensemble spread;
-* *prediction*: finds the value of the prediction time for each value of the perturbation applied to the system.
+* *prediction*: finds the value of the predictability time for each value of the perturbation applied to the system.
 
-Further information are available as docstrings in the script itself.
+Further information are available as docstrings in the script itself or in .
 
 In the [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/plots.py) file all the functions necessary to plot the results are defined:
 * *xzgraph*: produces a plot of the solution of the integration of the Lorenz system in the plane x, z. 
@@ -93,11 +93,12 @@ In the [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/pl
 * *plot_difference*: produces a plot of the difference as a function of time.
 * *plot_rmse*: produces a plot of the RMSE as a function of time;
 * *plot_ensemble_trajectories*: produces a plot of the ensemble mean and its corresponding ensemble spread for each of the 3 variables;
-* *plot_ensemble*: produces a plot of *L* and *R* as a function of time.
+* *plot_ensemble*: produces a plot of *L* and *R* as a function of time;
+* *pred_time_vs_perturbation*: produces a plot of the predictability time as a function of the applied perturbation.
 
 The graphs are automatically shown and saved in the repository [output](https://github.com/robertabenincasa/project_Lorenz/blob/master/output) by running the main code.
 
-Finally, in the [test](https://github.com/robertabenincasa/project_Lorenz/blob/master/test.py) file all the functions defined in the [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py) file are tested through hypothesis testing in order to verify that they work properly.
+Finally, in the [test](https://github.com/robertabenincasa/project_Lorenz/blob/master/test.py) file all the functions defined in the [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py) file are tested through hypothesis testing in order to verify their proper functioning.
 
 Here the resulting animation of the Lorenz system:
 ![](https://github.com/robertabenincasa/project_Lorenz/blob/master/output/animation.gif)
