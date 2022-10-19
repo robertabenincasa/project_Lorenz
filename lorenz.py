@@ -7,6 +7,7 @@ Created on Sat Aug 20 23:07:33 2022
 import numpy as np
 
 
+
 def read_parameters(par: str,
                     ) -> np.ndarray:
     """ This functions converts a string composed of numbers separated by
@@ -44,23 +45,21 @@ def read_parameters(par: str,
                          ' missing commas!')
         
         
+        
+    par0 = par.split(',')
+        
+    par1 = np.zeros(len(par0))
     
-    else:
+    for i in range(len(par0)):
         
-        par0 = par.split(',')
-        
-        par1 = np.zeros(len(par0))
-    
-        for i in range(len(par0)):
-        
-            par1[i] = float(par0[i])
+        par1[i] = float(par0[i])
       
     
-        return par1
+    return par1
 
 
 def lorenz(
-           state_vector: np.ndarray, 
+           state_vector: np.ndarray,
            t: np.ndarray,
            sigma: float,
            b: float,
@@ -83,7 +82,7 @@ def lorenz(
             It is the vector formed by the 3 variables x(t), y(t) and z(t) of 
             the Lorenz system.
             
-            t : array-like(float)
+            t: ndarray-like(float)
             Time.
             
             sigma : scalar(float)
@@ -324,7 +323,7 @@ def prediction(
     """
     pred_time = np.zeros(len(eps))
     
-    for i in range(0,len(eps)):
+    for i in range(len(eps)):
     
         for m in range(num_steps): 
         
@@ -336,6 +335,8 @@ def prediction(
         
         if np.all(error[:,i] < 0.5):
             
+            pred_time[i] = 0.
+            
             print('for $/epsilon$ = ', eps[i], 
         'the RMSE is always smaller than 0.5 for the entire time window')
             
@@ -343,7 +344,37 @@ def prediction(
             
     
     
+def func(
+        x: np.ndarray,
+        a: float,
+        b: float,
+        ) -> np.ndarray:
     
+    """ This function returns the results of a linear equation of the kind:
+        y = a * x + b.
+    
+    Arguments:
+    ----------
+        x: np.ndarray(floats)
+        Data.
+        
+        a: floats
+        First parameter.
+        
+        b: floats
+        Second parameter.
+        
+    Returns:
+    --------
+        y: np.ndarray(floats)
+        Such that y = a * x + b.
+    """
+    y =  a * x + b
+    return y
+    
+    
+    
+
 
 
 
