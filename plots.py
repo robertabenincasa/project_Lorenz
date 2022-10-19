@@ -4,11 +4,12 @@ Created on Sun Aug 21 13:40:54 2022
 
 @author: roberta benincasa
 """
-
-import matplotlib.pyplot as plt
-import numpy as np
-import matplotlib.animation as animation
 import configparser
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+
 
 
 config = configparser.ConfigParser()
@@ -40,7 +41,7 @@ def plot_3dsolution(
         sol: np.ndarray,
         r: float):
     
-    fig = plt.figure(figsize = (8,6))
+    plt.figure(figsize = (8,6))
     ax = plt.axes(projection='3d')
     ax.grid()
     
@@ -84,7 +85,9 @@ def plot_animation(sol, sol1, r, eps):
         ylist = [sol[:num,1],sol1[:num,1]]
         zlist = [sol[:num,2],sol1[:num,2]]
         
+        
         for lnum,line in enumerate(lines):
+          
             line.set_data(xlist[lnum],ylist[lnum])    
             line.set_3d_properties(zlist[lnum])    
     
@@ -103,6 +106,7 @@ def plot_animation(sol, sol1, r, eps):
     ax.legend(loc='best')
    
 # Creating the Animation object
+
     anim = animation.FuncAnimation(fig, animate, init_func=init(), 
                             frames=300, interval=2, blit=False)
     
@@ -114,20 +118,23 @@ def plot_difference(
         diff: np.ndarray,
         diff1: np.ndarray,
         t: np.ndarray,
+        eps: float,
         ):
     
     
     fig,((ax),(ax1))=plt.subplots(2,1, sharex=True, figsize=(8,6))
     
     ax.grid()
-    ax.plot(t, diff,'cornflowerblue', marker='.',markersize=1, label = 'r = 9')
-    ax.set_title('Difference between x-components')
+    ax.plot(t, diff,'cornflowerblue', marker='.',markersize=1, label = 'r = 28')
+    ax.set_title('Difference between x-components - $\epsilon$ = '+ np.format_float_scientific(eps))
     ax.legend(loc='best')
     
     ax1.grid()
-    ax1.plot(t, diff1,'purple', marker='.',markersize=1, label = 'r = 28')
+    ax1.plot(t, diff1,'purple', marker='.',markersize=1, label = 'r = 9')
     ax1.legend(loc='best')
     ax1.set_xlabel('t')
+    ax1.ticklabel_format(axis='y', style='sci', scilimits=(-2,-10))
+                      
     
     
     plt.savefig(path + '/difference.png')
@@ -212,4 +219,28 @@ def plot_ensemble_trajectories(
     
     
     plt.savefig(path + '/ensemble_trajectories.png')
+    plt.show()
+    
+    
+def pred_time_vs_perturbation(
+        pred_time: np.ndarray,
+        eps: np.ndarray,
+        fit: np.ndarray,
+        popt: np.ndarray,
+        ):
+
+    
+    fig,(ax)=plt.subplots(1,1,figsize=(8,6))
+    ax.grid()
+    
+    plt.scatter(eps,pred_time,c='indigo', label = 'data')
+    plt.plot(eps, fit, 'purple',
+         label='fit: a=%5.3f, b=%5.3f' % tuple(popt))
+    ax.set_xscale('log')
+    ax.set_title('Predictability time', size = 20)
+    ax.legend(loc='best')
+    
+    ax.set_xlabel('Perturbation')
+    
+    plt.savefig(path +'/pred_time_vs_perturbation.png')
     plt.show()
