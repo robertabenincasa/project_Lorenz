@@ -4,14 +4,15 @@ Created on Sun Aug 28 18:15:18 2022
 
 @author: robertabenincasa
 """
-from lorenz import (lorenz, perturbation, difference,
-                    RMSE, prediction, read_parameters, ensemble)
-import numpy as np
 import configparser
+import numpy as np
 from hypothesis import (given, settings)
 import hypothesis.strategies as st
 import hypothesis.extra.numpy as exnp
 import pytest
+from lorenz import (lorenz, perturbation, difference, func,
+                    RMSE, prediction, read_parameters, ensemble)
+
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -21,7 +22,8 @@ config.read('config.ini')
 dt1 = config.get('Integration settings', 'dt')
 dt = float(dt1)
 
-num_steps = 3000 #due to the analytical features of the Lorenz system, the
+NUM_STEPS = 3000 
+#due to the analytical features of the Lorenz system, the
 #tests are performed up to a smaller number of tiumestep than the one used in 
 #the integration, since it would have been uninformative.
 
@@ -37,17 +39,13 @@ r1 = float(r_1)
 r_2 =  config.get('Parameters', 'r2') #non-chaotic solution
 r2 = float(r_2)
 
-dim_eps1 = config.get('Perturbations', 'dim_eps')
-dim_eps = int(dim_eps1)
-
 N1 = config.get('Integration settings', 'N')
 N = int(N1)
 
 IC01 = config.get('Initial condition', 'IC') #initial condition
 IC0 = read_parameters(IC01)
 
-t = np.linspace(0,num_steps,num_steps)*dt
-
+t = np.linspace(0,NUM_STEPS,NUM_STEPS)*dt
 #max_value and min_value have been set to 50 and -50 respectively for the 
 #elements of the trajectories since the attractor is surely confined to this region
 #for the ICs given in the configuration. Similarly, the perturbation
@@ -62,8 +60,10 @@ t = np.linspace(0,num_steps,num_steps)*dt
        par_2 = st.characters(whitelist_categories='LMPSZC'))
 @settings(max_examples = 100)
 def test_read_parameters_is_working(par,par_1,par_2):
+    
     """ This function tests that the read_parameters function used to read 
     the parameters from the configuration file works properly.
+    
     In particular, it verifies that an error would be raised except for the
     case where the the argument is a string made of numbers separated by 
     commas.
@@ -112,14 +112,14 @@ def test_read_parameters_is_working(par,par_1,par_2):
         "made in the proper way")
     
 
-    assert type(read_parameters(string4)) == np.ndarray, "Incorrect use"
-    assert type(read_parameters(string5)) == np.ndarray, "Incorrect use"
+    assert isinstance(read_parameters(string4),np.ndarray) is True, "Incorrect use"
+    assert isinstance(read_parameters(string5),np.ndarray) is True, "Incorrect use"
 
 
 
 
 for r in [r1,r2]:
-    @given(state = exnp.arrays(np.dtype(float),(3,num_steps),
+    @given(state = exnp.arrays(np.dtype(float),(3,NUM_STEPS),
        elements = st.floats(min_value = -50,max_value= 50, allow_nan=False,
        allow_infinity=False)))
     @settings(max_examples = 100)  
@@ -133,16 +133,16 @@ for r in [r1,r2]:
         """
         for i in range(3):
         
-            assert len(lorenz(state,t,sigma,b,r)[i]) == num_steps, "Invalid result"
+            assert len(lorenz(state,t,sigma,b,r)[i]) == NUM_STEPS, "Invalid result"
     
     
 @given(eps = exnp.arrays(np.dtype(float), N ,elements = 
     st.floats(min_value = -1.1,max_value= 1.1,allow_nan=False, 
     allow_infinity=False)))
 @settings(max_examples = 100)
-def test_IC_is_valid(eps):
+def test_ic_is_valid(eps):
     
-   """ This function tests that the perturbation function generates
+    """ This function tests that the perturbation function generates
        valid ICs.
    
        GIVEN: the original IC and the perturbation array
@@ -151,21 +151,21 @@ def test_IC_is_valid(eps):
        the original IC and that the perturbation is applied only on the x-axis.
        
        """
-   IC = perturbation(IC0,eps)
+    IC = perturbation(IC0,eps)
        
-   for i in range(3):  
+    for i in range(3):  
         
-       assert IC0[i] == IC[0,i], "Original IC is not preserved in the 0 row"
+        assert IC0[i] == IC[0,i], "Original IC is not preserved in the 0 row"
         
-   for i in range(1,len(eps)+1):
+    for i in range(1,len(eps)+1):
          
-       for m in range(2,3):
+        for m in range(2,3):
             
-           assert IC0[m] == IC[i,m], "Perturbation is not only on the 0 axis"
+            assert IC0[m] == IC[i,m], "Perturbation is not only on the 0 axis"
 
 
         
-@given(sol = exnp.arrays(np.dtype(float),(num_steps,3),
+@given(sol = exnp.arrays(np.dtype(float),(NUM_STEPS,3),
        elements = st.floats(min_value = -50,max_value= 50,allow_nan=False,
        allow_infinity=False)))
 @settings(max_examples = 100)
@@ -180,17 +180,17 @@ def test_diff_identical_trajectories(sol):
     """
     delta_x = difference(sol[:,:],sol[:,:])
     
-    for i in range(num_steps):
+    for i in range(NUM_STEPS):
         
         assert delta_x[i] == 0., ("The difference function is not working"
                                   "properly")
         
         
  
-@given(sol = exnp.arrays(np.dtype(float),(num_steps,3,N+1),
+@given(sol = exnp.arrays(np.dtype(float),(NUM_STEPS,3,N+1),
        elements = st.floats(min_value = -50,max_value= 50,allow_nan=False, allow_infinity=False)))
 @settings(max_examples = 100)    
-def test_RMSE_positive_quantity(sol):
+def test_rmse_positive_quantity(sol):
     """ This function tests that the RMSE is a positive quantity for each 
     time step.
         
@@ -200,8 +200,8 @@ def test_RMSE_positive_quantity(sol):
         
     """
     
-    sol1 = np.zeros((num_steps,3))
-    sol2 = np.zeros((num_steps,3))
+    sol1 = np.zeros((NUM_STEPS,3))
+    sol2 = np.zeros((NUM_STEPS,3))
     
     sol1[:,:] =  sol[:,:,0]
     for j in range(1,N+1):  
@@ -212,10 +212,10 @@ def test_RMSE_positive_quantity(sol):
             
         
         
-@given(sol = exnp.arrays(np.dtype(float),(num_steps,3),
+@given(sol = exnp.arrays(np.dtype(float),(NUM_STEPS,3),
        elements = st.floats(min_value = -50, max_value= 50,allow_nan=False, allow_infinity=False)))
 @settings(max_examples = 100)           
-def test_RMSE_identical_trajectories(sol):
+def test_rmse_identical_trajectories(sol):
     """ This function tests that RMSE between two identical trajectory
     is equal to zero.
     
@@ -227,15 +227,16 @@ def test_RMSE_identical_trajectories(sol):
     
     rmse = RMSE(sol[:,:],sol[:,:])
     
-    for i in range(num_steps):
+    for i in range(NUM_STEPS):
         
         assert rmse[i] == 0., ("The RMSE function"
                             "is not working properly")
         
         
         
-@given(sol = exnp.arrays(np.dtype(float),(num_steps,3,1),
-        elements = st.floats(min_value = -100,max_value= 100,allow_nan=False, allow_infinity=False)))
+@given(sol = exnp.arrays(np.dtype(float),(NUM_STEPS,3,1),
+        elements = st.floats(min_value = -100,max_value= 100,allow_nan=False, 
+        allow_infinity=False)))
 @settings(max_examples = 100, deadline=None)           
 def test_ensemble_mean(sol):
     """ This function tests that the ensemble mean of an ensemble composed of a
@@ -248,12 +249,12 @@ def test_ensemble_mean(sol):
     
     mean = ensemble(sol)[1]
     
-    assert np.array_equal(mean, sol[:,:,0], equal_nan=False) == True, ("The ensemble function"+
+    assert np.array_equal(mean, sol[:,:,0], equal_nan=False) is True, ("The ensemble function"+
                            "is not working properly")
           
     
      
-@given(sol = exnp.arrays(np.dtype(float),(num_steps,3,1),
+@given(sol = exnp.arrays(np.dtype(float),(NUM_STEPS,3,1),
         elements = st.floats(min_value = -50,max_value= 50,allow_nan=False, allow_infinity=False)))
 @settings(max_examples = 100, deadline=None)           
 def test_ensemble_spread(sol):
@@ -286,8 +287,8 @@ def test_pred_time_with_rmse_equal_to_zero(eps):
         than 0.5.
         """
     
-    error = np.zeros((num_steps, N+1))
-    time = prediction(error, num_steps, dt, eps)
+    error = np.zeros((NUM_STEPS, N))
+    time = prediction(error, NUM_STEPS, dt, eps)
         
     assert np.all(time == 0.), ("The prediction function is not "
     "working properly")
@@ -309,8 +310,22 @@ def test_pred_time_with_rmse_equal_to_1(eps):
     
     """
     
-    error = np.ones((num_steps,N+1))
-    time = prediction(error, num_steps, dt, eps)
+    error = np.ones((NUM_STEPS,N))
+    time = prediction(error, NUM_STEPS, dt, eps)
     
     assert np.all(time == 0.), ("The prediction function is not "
     "working properly")
+
+
+@given(x = exnp.arrays(np.dtype(float), N,
+        elements = st.floats(min_value = 0,max_value= 1.1,allow_nan=False,
+        allow_infinity=False)), b = st.floats(allow_nan=False, 
+                                              allow_infinity=False))
+@settings(max_examples = 100) 
+def test_func_is_working(x,b):
+    
+    assert np.all(func(x,0,b) == b), ("The func function is not "
+    "working properly")
+    
+    
+    
