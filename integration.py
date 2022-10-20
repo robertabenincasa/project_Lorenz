@@ -10,8 +10,7 @@ import pandas as pd
 import dataframe_image as dfi
 from tabulate import tabulate
 from scipy.integrate import odeint
-from scipy.optimize import curve_fit
-from lorenz import (lorenz, perturbation, difference, func,
+from lorenz import (lorenz, perturbation, difference, func, fitting,
                     RMSE, prediction, read_parameters, ensemble)
 
 from plots import (xzgraph, plot_difference, plot_rmse,
@@ -99,8 +98,8 @@ error = np.zeros((num_steps, len(eps)))
 pred_time = np.zeros(len(eps))
                  
 
-delta_x[:,0] = difference(sol_1[:,:,0], sol_1[:,:,3]) 
-delta_x[:,1] = difference(sol_2[:,:,0], sol_2[:,:,3])
+delta_x[:,0] = difference(sol_1[:,:,0], sol_1[:,:,7]) 
+delta_x[:,1] = difference(sol_2[:,:,0], sol_2[:,:,7])
 
 for i in range(1,len(eps)+1): 
     
@@ -163,7 +162,7 @@ for j in errors:
 
 path = config.get('Paths to files', 'path')
 
-#plotting both chaotic and non-chaotic solution for
+#PLOTTING both chaotic and non-chaotic solution for
 #the unpertubed case in the x,z plane
 
 xzgraph(sol_1[:,:,0],r1) 
@@ -177,33 +176,37 @@ print('\n')
 print('---------------Preparing the animation--------------')
 print('------This operation may require a few seconds------')
 
-plot_animation(sol_1[:,:,0],sol_1[:,:,4],r1,eps[4])
+plot_animation(sol_1[:,:,0],sol_1[:,:,9],r1,eps[9])
 
 
 
-#Plotting the results of the analysis:
+#PLOTTING the results of the analysis:
 
-plot_difference(delta_x[:,0],delta_x[:,1],t,eps[3]) 
+plot_difference(delta_x[:,0],delta_x[:,1],t,eps[7]) 
 
-for i in range(len(eps)): 
+for i in range(0,len(eps),2): 
    
     plot_rmse(error[:,i],t, r1, eps[i], pred_time[i])
  
-#Fitting: predictability time vs applied perturbation
+#FITTING: predictability time vs applied perturbation.
+#The aim is to verify their logarithmic dependence.
+#There are 2 separate fit: one for all the available values of the perturbation 
+#and the other just for the infinitesimal values
 
-popt, pcov = curve_fit(func, np.log10(eps), pred_time)
+fit, popt, p_low, p_top = fitting(func,eps,pred_time, -1.1, 10)
+fit1, popt1, p_low1, p_top1 = fitting(func,eps[0:4],pred_time[0:4], -1.1, 10)
 
-fit = func(np.log10(eps),*popt)
 
-pred_time_vs_perturbation(pred_time, eps, fit, popt)
+pred_time_vs_perturbation(pred_time, eps, fit, popt, p_low, p_top, fit1, popt1, 
+                          p_low1, p_top1)
 
-#Plotting the results of hte ensemble analysis 
+#PLOTTING the results of the ensemble analysis 
 plot_ensemble(L,R,t)
 plot_ensemble_trajectories(sol_ave,spread,t)
 
 
-#creating a table with the values of the perturbation and
-# of the corresponding prediction times 
+#Creating a table with the values of the perturbation and
+#of the corresponding prediction times 
 
 #---------------------Printing to terminal:------------------------
 
