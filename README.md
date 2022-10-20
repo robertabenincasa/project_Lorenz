@@ -67,12 +67,11 @@ The parameters used in the simulation are:
 * *N*: number of random perturbations;
 * *set A, B*: the values of the parameters of the Lorenz system as defined above;
 * *IC*: the initial condition of the system;
-* *eps*: the values of the perturbations applied to the system;
-* *dim_eps*: number of perturbations *eps*.
+* *eps*: the values of the perturbations applied to the system.
 
 Their values can be modified by the users according to their needs, while keeping in mind the analytical description of the system provided before. 
 
-In order to obtain the entire output, it is necessary to run only the [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py) script, which is also the main code of the project. The time integration of the Lorenz system is performed through the [scipy.integrate.odeint](https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.odeint.html) library. Note that the integration is performed for each set of parameters and for each initial conditions. The latter are obtained by perturbing the x-component of the original initial condition *IC* through the perturbations defined in the array *eps*. Then, the difference between the x-component of the unperturbed trajectory and the first perturbed one are computed for both set of parameters, as a preliminary analysis. Subsequently, the Root Mean Square Error is computed for each value of the perturbation only for the chaotic solution, since it would have been uninformative for set B of parameters. Moreover, the predictability time is computed and stored in a table alongside with its corresponding value of $\epsilon$.
+In order to obtain the entire output, it is necessary to run only the [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py) script, which is also the main code of the project. The time integration of the Lorenz system is performed through the [scipy.integrate.odeint](https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.odeint.html) library. Note that the integration is performed for each set of parameters and for each initial conditions. The latter are obtained by perturbing the x-component of the original initial condition *IC* through the perturbations defined in the array *eps*. Then, the difference between the x-component of the unperturbed trajectory and the first perturbed one are computed for both set of parameters, as a preliminary analysis. Subsequently, the Root Mean Square Error is computed for each value of the perturbation only for the chaotic solution, since it would have been uninformative for set B of parameters. Moreover, the predictability time is computed and stored in a table alongside with its corresponding value of $\epsilon$. 
 Finally, the same procedure is repeated for the case of an ensemble of pertubations and the corresponding predictability times are stored in a second table.
 
 In the [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py) file all the functions used in the main code are defined:
@@ -82,9 +81,11 @@ In the [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/l
 * *difference*: performs the difference between the x-components of 2 trajectories of the system.
 * *RMSE*: performs the calculation of the root mean square error of the solution obtained from the perturbed ICs with respect to the unperturbed one.
 * *ensemble*: performs the calculation of the ensemble mean and of the ensemble spread;
-* *prediction*: finds the value of the predictability time for each value of the perturbation applied to the system.
+* *prediction*: finds the value of the predictability time for each value of the perturbation applied to the system;
+* *func*: produces a linear equation( y = ax + b) necessary for the linear fitting;
+* *fitting*: produces a linear fit of the prediction time as a function of the logarithm of the perturbation, in order to check what expected from the theory. 
 
-Further information are available as docstrings in the script itself or in .
+Further information are available as docstrings in the program itself and can be accessed by typing *help('name of the function')*.
 
 In the [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/plots.py) file all the functions necessary to plot the results are defined:
 * *xzgraph*: produces a plot of the solution of the integration of the Lorenz system in the plane x, z. 
