@@ -6,11 +6,12 @@ Created on Sun Aug 28 18:15:18 2022
 """
 import configparser
 import numpy as np
+import math
 from hypothesis import (given, settings)
 import hypothesis.strategies as st
 import hypothesis.extra.numpy as exnp
 import pytest
-from lorenz import (lorenz, perturbation, difference, func,
+from lorenz import (lorenz, perturbation, difference, func, fitting,
                     RMSE, prediction, read_parameters, ensemble)
 
 
@@ -40,7 +41,7 @@ r_2 =  config.get('Parameters', 'r2') #non-chaotic solution
 r2 = float(r_2)
 
 N1 = config.get('Integration settings', 'N')
-N = int(N1)
+N = 10#int(N1)
 
 IC01 = config.get('Initial condition', 'IC') #initial condition
 IC0 = read_parameters(IC01)
@@ -323,9 +324,42 @@ def test_pred_time_with_rmse_equal_to_1(eps):
                                               allow_infinity=False))
 @settings(max_examples = 100) 
 def test_func_is_working(x,b):
+    """ This function tests that given an angular coefficient equal to zero, 
+    the linear equation should return y = b for every value of x.
     
+    GIVEN: arbitrary values of x and b 
+    WHEN: a = 0
+    THEN: I expect y to be equal to b for every value of x.
+    
+    """
     assert np.all(func(x,0,b) == b), ("The func function is not "
     "working properly")
+    
+    
+    
+# @given(c = exnp.arrays(np.dtype(float), N,
+#          elements = st.floats(min_value = 1E-10,max_value= 1.1,allow_nan=False,
+#          allow_infinity=False)))
+@given(c = st.lists(elements = st.floats(min_value = 1E-10,max_value= 1.1,
+                     allow_nan=False,allow_infinity=False),
+                     min_size = 5, max_size = N, unique=True))
+@settings(max_examples = 100)    
+def test_fitting_is_working(c):
+    """ This function tests that given y equal to log(x) the fitting function
+    should return an angular coefficient m equal to one.
+    
+    GIVEN: the fitting function
+    WHEN: y = log(x) (base 10)
+    THEN: m =1
+    """
+    c = np.array(c)
+    x = np.sort(c)
+        
+    y = np.log10(x)
+    angular_coeff = fitting(func,x,y,1.,0.)[1][0]
+   
+    assert math.isclose(angular_coeff, 1.,rel_tol = 1E-7) == True  
+    
     
     
     
