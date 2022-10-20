@@ -5,6 +5,11 @@ Created on Sat Aug 20 23:07:33 2022
 @author: roberta benincasa
 """
 import numpy as np
+from typing import Callable
+from scipy.optimize import curve_fit
+import scipy.stats as st
+from scipy.stats.mstats import mquantiles
+
 
 
 
@@ -350,7 +355,7 @@ def func(
         b: float,
         ) -> np.ndarray:
     
-    """ This function returns the results of a linear equation of the kind:
+    """ This function returns a linear equation of the kind:
         y = a * x + b.
     
     Arguments:
@@ -372,7 +377,72 @@ def func(
     y =  a * x + b
     return y
     
+
+def fitting(func: Callable,
+            x: np.ndarray,
+            y: np.ndarray,
+            best_guess_1: float,
+            best_guess_2: float,
+            )-> tuple:
     
+    """This function produces a linear fit of the y data using a log scale for
+    the x axis and gives a measure of the uncertainty. 
+    
+    It exploits scipy modules: scipy.optimize.curve_fit, 
+    scipy.stats.multivariate_normal.rvs and scipy.stats.mstats.mquantiles.
+    
+    Arguments:
+    ----------
+        func:
+        Function previously defined that returns a linear equation:
+        y = a * x + b
+        
+        x: np.ndarray(floats)
+        Data to be out in log scale.
+        
+        y: np.ndarray(floats)
+        Data to be fitted.
+        
+        best_guess_1: float
+        Best guess for the first parameter.
+        
+        best_guess_2: float
+        Best guess for the second parameter.
+        
+        Returns:
+        --------
+            fit: np.ndarray(floats)
+            The result of the fitting process.
+            
+            popt: np.ndarray(floats)
+            Parameters resulting from the fitting process.
+            
+            p_low: np.ndarray(floats)
+            An array containing the first calculated quantile.
+            
+            p_top:  np.ndarray(floats)
+            An array containing the second calculated quantile.
+            
+        For further information about scipy modules, see the following links:
+            
+        ->https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html
+        ->https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.multivariate_normal.html
+        ->https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mstats.mquantiles.html
+        
+            
+        """
+    
+    popt, pcov = curve_fit(func, np.log10(x), y, p0=(best_guess_1, best_guess_2))
+    
+    fit = func(np.log10(x),*popt)
+    
+    p_seq = st.multivariate_normal.rvs(mean=popt, cov=pcov, size=50)
+    
+    fit_ = [func(np.log10(x),*params) for params in p_seq]
+    
+    p_low, p_top = mquantiles(fit_, prob=[0.025, 0.975], axis=0)
+    
+    return fit, popt, p_low, p_top
     
 
 
