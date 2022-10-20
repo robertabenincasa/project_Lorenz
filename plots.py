@@ -227,6 +227,12 @@ def pred_time_vs_perturbation(
         eps: np.ndarray,
         fit: np.ndarray,
         popt: np.ndarray,
+        p_low: np.ndarray,
+        p_top: np.ndarray,
+        fit1: np.ndarray,
+        popt1: np.ndarray,
+        p_low1: np.ndarray,
+        p_top1: np.ndarray,
         ):
 
     
@@ -236,6 +242,10 @@ def pred_time_vs_perturbation(
     plt.scatter(eps,pred_time,c='indigo', label = 'data')
     plt.plot(eps, fit, 'purple',
          label='fit: a=%5.3f, b=%5.3f' % tuple(popt))
+    plt.plot(eps[0:4], fit1, 'cornflowerblue',
+         label='fit: a=%5.3f, b=%5.3f' % tuple(popt1))
+    plt.fill_between(eps, p_low, p_top, alpha=0.1, color='violet')
+    plt.fill_between(eps[0:4], p_low1, p_top1, alpha=0.1, color='royalblue')
     ax.set_xscale('log')
     ax.set_title('Predictability time', size = 20)
     ax.legend(loc='best')
