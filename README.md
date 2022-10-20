@@ -65,7 +65,7 @@ The parameters used in the simulation are:
 * *num_steps*: the number of steps for the integration;
 * *dt*: the step size;
 * *N*: number of random perturbations;
-* *set A, B*: the values of the parameters of the Lorenz system as defined above;
+* *b*,  $\sigma$, *r1*, *r2*: the values of the parameters of the Lorenz system as defined above;
 * *IC*: the initial condition of the system;
 * *eps*: the values of the perturbations applied to the system.
 
