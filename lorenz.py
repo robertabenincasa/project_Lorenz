@@ -4,63 +4,63 @@ Created on Sat Aug 20 23:07:33 2022
 
 @author: roberta benincasa
 """
+from os import path
 import numpy as np
-from typing import Callable
+from typing import Callable, Union
 from scipy.optimize import curve_fit
+from scipy.integrate import odeint
 import scipy.stats as st
 from scipy.stats.mstats import mquantiles
 
 
 
+def reading_configuration_file(default_file: str,
+                               )->str:
+    
+    """ This function allows a command line interface with the user in order
+    to let them choose the configuration file that they want to use for the 
+    simulation.
+    If none is given, the default one is used. 
+    
+    Arguments:
+    ----------
+        default_file: string
+        It is the default configuration file.
+        
+    Returns:
+    --------
+        configuration_file: string
+        The name of the configuration file chosen by the user, only if it is an
+        existing file. Otherwise, the user will be asked to insert the name of 
+        an existing file until they provide it.
+        
+    Note:
+    -----
+        The user is supposed to insert the entire path of the file if it is not
+        in the same folder as the codes.
+        
+        
+        """
+    
+    
+    while True:
+        
+        print('\n'+'Enter the name of the configuration file of your choice and press' +
+          ' ENTER.'+' If none is given, the default one will be used: '+
+              str(default_file))
+    
+        configuration_file = str(input("Name of the file: ") or default_file)
+    
+        if path.exists(configuration_file) == True:
+        
+            return configuration_file
+    
+        else:
+            
+            print('\n'+'--------------------->FILE '+ configuration_file +
+                  ' DOES NOT EXIST. PLEASE TRY AGAIN<--------------------')
+        
 
-def read_parameters(par: str,
-                    ) -> np.ndarray:
-    """ This functions converts a string composed of numbers separated by
-        commas into the corresponding np.array.
-    
-        It was realised in order to read the values of some parameters in the 
-        configuration file which are conceived to be vectors, but were written 
-        as strings.
-   
-        Arguments:
-        ----------
-            par: string 
-            
-        Returns:
-        --------
-            par1: np.ndarray
-        
-        Raises:
-        -------
-            ValueError : if the string contains an elements that is not a
-            number, i.e. a letter or a symbol.
-            FormatError: string is not valid, missing commas!
-            if there are no commas into the string to perform the .split .
-            
-        Note:
-        -----
-             If the input string is composed of a single number, both integer 
-             or float, the FormatError would be raised anyway. This function was
-             conceived for extracting arrays only.
-    """
-   
-    if ',' not in par:
-        
-        raise ValueError('Lorenz.py-read_parameters: cannot perform split,'+ 
-                         ' missing commas!')
-        
-        
-        
-    par0 = par.split(',')
-        
-    par1 = np.zeros(len(par0))
-    
-    for i in range(len(par0)):
-        
-        par1[i] = float(par0[i])
-      
-    
-    return par1
 
 
 def lorenz(
@@ -126,8 +126,10 @@ def lorenz(
 def perturbation(
                  init_cond: np.ndarray,
                  eps: np.ndarray,
+                 which_variable: int,
                  ) -> np.ndarray:
-    """ This function adds a perturbation to the first component of the 
+    
+    """ This function adds a perturbation to the selected component of the 
     initial condition of the simulation.
     
         Arguments:
@@ -136,8 +138,10 @@ def perturbation(
             Unperturbed initial values of the 3 variables of the system.
             
             eps : array-like(float)
-            Three different values used to perturb the x-component of the 
-            initial condition.
+            Three different values used to perturb the initial condition.
+            
+            which_variable: integer
+            Variable whose IC is to be pertubed. Possible values are: 0, 1 and 2.
         
         Returns:
         --------
@@ -149,17 +153,73 @@ def perturbation(
         ------
             The number of perturbed ICs depends on the number of 
             perturbations. 
-            The choice to perturb only the x-component is arbitrary.
+    
     
     """
     
-    IC = np.zeros((1+len(eps),3))
+    IC = np.ones((len(eps)+1,3))
     
-    IC[0,:] = init_cond
-    for i in range(1,len(eps)+1):
-        IC[i,:]=IC[0,:]+[eps[i-1],0.,0.]
+    IC = IC * init_cond
+    
+    IC[1:,which_variable] = IC[1:,which_variable]+eps
     
     return IC
+
+def integration_Lorenz_system(lorenz: Callable,
+                              num_steps: int,
+                              t: np.ndarray,
+                              IC: np.ndarray,
+                              set_parameters: tuple,
+                              ) -> np.ndarray:
+    """ This function performs the integration of the Lorenz system, defined in
+    the function lorenz, using the scipy module odeint.
+    
+    Arguments:
+    ----------
+        lorenz: Callable
+        It is the function defined above that defines the lorenz system.
+        It is necessary to perform the integration using the odeint module.
+        
+        num_steps: integer
+        Number of steps for the integration.
+        
+        t: np.ndarray(floats)
+        Time.
+        
+        IC: np.ndarray
+        Vector with the initial condition for each value of the perturbation.
+        
+        set_parameters: tuple(floats)
+        Chosen set of the values of the 3 parameters of the system: sigma, b 
+        and r.
+        
+    Returns:
+    --------
+        sol: np.ndarray(floats)
+        Solution of the integration of the Lorenz system with the given set of
+        parameters. It is a 3D array: the first dimension is the time, the 
+        second the variable (x, y or z) and the last is relative to which 
+        perturbation was applied to the system. 
+        
+    Note:
+    -----
+        sol[:,:,0] represents the unperturbed solution.
+        
+        """
+    
+    sol = np.zeros((num_steps , 3, IC.shape[0])) 
+    
+    sigma, b, r = set_parameters
+    
+    sol[:,:,0] = odeint(lorenz,IC[0,:],t,args=(sigma,b,r)) 
+    
+    for i in range(IC.shape[0]-1):
+        
+        sol[:,:,i+1] = odeint(lorenz,IC[i+1,:],t,args=(sigma,b,r)) 
+        
+    return sol
+    
+
 
 def difference(
                sol1: np.ndarray,
@@ -195,8 +255,7 @@ def difference(
 
 
 def RMSE(
-        sol1: np.ndarray,
-        sol2: np.ndarray,
+        sol: np.ndarray,
         ) -> np.ndarray:
     
     """This function performs the calculation of the root mean square error 
@@ -210,30 +269,112 @@ def RMSE(
        
            Arguments:
            ----------
-               sol1 : ndarray-like(float)
-               Unperturbed solution.
-               
-               sol2: ndarray-like(float)
-               Perturbed solution.
+               sol : ndarray-like(float)
+               Integrated trajectory of dimension: (number of steps, number of
+               variables, number of perturbations).
                
            Returns:
            --------
                rmse : ndarray-like(float)
-               Root Mean Square Error as a function of time. It is defined as
-               the square root of the sum of the squared differences between
-               the corresponding components of the 2 trajectories.
+               Root Mean Square Error as a function of time and of the applied
+               perturbation. It is defined as the square root of the sum of the
+               squared differences between the corresponding components of the
+               2 trajectories.
                
         
-    
     """
-
     
+    num_steps = sol.shape[0]
+    number_of_perturbations = sol.shape[2]-1
+    
+    rmse = np.zeros((num_steps, number_of_perturbations))
+    
+    for i in range(number_of_perturbations):
         
-    rmse = np.sqrt((sol1[:,0] - sol2[:,0])**2 + (sol1[:,1]-sol2[:,1])**2 + (sol1[:,2]-sol2[:,2])**2)
-    
+        error = np.square(np.subtract(sol[:,:,0],sol[:,:,i+1]))
+        rmse[:,i] = np.sqrt(np.mean(error, axis = 1))
+                     
     return rmse
 
-def ensemble(sol_ens: np.ndarray,
+
+
+def generate_random_perturbation(
+                                 random_seed: int,
+                                 N: int,
+                                 ) -> np.ndarray:
+    
+    """This function returns an array of N random numbers in the range 
+       [-0.75, 0.75].
+    
+       Arguments:
+       ----------
+            random_seed: integer
+            Fixed value of the random seed.
+        
+            N: integer
+            Number of random numbers to be generated.
+        
+        Returns:
+        --------
+            eps: np.ndarray(floats)
+            Array of dimension N containing N random numbers in the range
+            [-0.75, 0.75].
+    
+    
+    """
+    
+    np.random.seed(random_seed)
+
+    eps = np.random.rand(N)*1.50 - 0.75
+    
+    return eps
+
+
+def calculating_L_and_R(
+                        sol_true: np.ndarray,
+                        sol_average: np.ndarray,
+                        rmse: np.ndarray,
+                        ) -> tuple:
+    
+    """ This function calculates the mean of the RMSE of each members of the 
+        ensemble (R) and the RMSE of the ensemble mean (L).
+        
+        
+            Arguments:
+            ----------
+                sol_true: np.ndarray(floats)
+                'True' solution of the system, i.e. unperturbed one.
+                
+                sol_average: np.ndarray(floats)
+                Ensemble mean.
+                
+                rmse: np.ndarray(floats)
+                RMSEs of each member of the ensemble with respect to the true
+                solution.
+                
+            Returns:
+            --------
+                R: np.ndarray(floats)
+                Mean of the RMSEs of each members of the ensemble, as a 
+                function of time.
+                
+                L: np.ndarray(floats)
+                RMSE of the ensemble mean, as a function of time.
+
+
+    """
+    
+    
+    R = np.mean(rmse, 1)
+    
+    L = np.square(np.subtract(sol_true,sol_average))
+    L = np.sqrt(np.mean(L, axis = 1))
+    
+    return R, L
+    
+    
+
+def ensemble(sol: np.ndarray,
                     ) -> tuple:
 
     """This function performs the calculation of the ensemble mean and of the 
@@ -244,7 +385,7 @@ def ensemble(sol_ens: np.ndarray,
                num_steps : int
                Number of timesteps for the integration.
                
-               sol_ens: ndarray-like(float)
+               sol: ndarray-like(float)
                Trajectories of the ensemble.
                
                N: int
@@ -262,51 +403,48 @@ def ensemble(sol_ens: np.ndarray,
         
     
     """
-    N = sol_ens.shape[2]
-    num_steps = sol_ens.shape[0]
+    N = sol.shape[2]
+    
+    num_steps = sol.shape[0]
     
     spread = np.zeros((num_steps,3))
-    S = np.zeros((3,N))    
+    
+    S = np.zeros((N,3))    
 
-    sol_ave = np.mean(sol_ens, 2)
+    sol_ave = np.mean(sol, 2)
     
     for i in range(num_steps):
     
         for j in range(3):
     
-            S[j,:] = np.array([sol_ens[i,j,m] for m in range(N)])
+            S[:,j] = np.array([sol[i,j,m] for m in range(N)])
     
-            spread[i,j] = np.std(S[j,:])
+            spread[i,j] = np.std(S[:,j])
             
     return spread, sol_ave
 
 
 def prediction(
-        error: np.ndarray,
-        num_steps: int,
+        rmse: np.ndarray,
         dt: float,
-        eps: np.ndarray,
-        ) -> np.ndarray:
+        threshold: float,
+        ) -> Union[np.ndarray,float]:
     
-    """ This function finds the value of the prediction time for each value 
+    """ This function finds the value of the predictability time for each value 
         of the perturbation applied to the system. 
         
             Arguments:
             ----------
-                error : ndarray-like(float)
+                rmse : ndarray-like(float)
                 Root Mean Square Error as a function of time. It is defined as
                 the square root of the sum of the squared differences between
                 the corresponding components of the 2 trajectories.
                 
-                num_steps : int
-                Number of time steps for the integration.
-                
                 dt : float
                 TIme step for the integration.
                 
-                eps : array-like(float)
-                Vector of the possible perturbations that can be applied 
-                to the x-component of the IC of the system.
+                threshold: float
+                Value to be used as the threshold for the RMSE.
                 
             Returns:
             --------
@@ -317,35 +455,57 @@ def prediction(
                 the unperturbed trajectory. 
                 
                 It is here defined as the time when the RMSE becomes greater
-                than a certain threshold, chosen to be 0.5 .
+                than a certain threshold, chosen to be 0.5.
             
             Notes:
             ------
-                The prediction time is here treated as an array since it 
-                depends on the value of the perturbation.
+                It gives the predictability time both for the case where the 
+                rmse is a 1D array that depends only on time and for the case 
+                where it is a 2D array that depends also on the value of the 
+                perturbation. It was done in order to allow the computation 
+                for both an ensamble of perturbation and for a single trajectory.
                 
     
     """
-    pred_time = np.zeros(len(eps))
-    
-    for i in range(len(eps)):
-    
-        for m in range(num_steps): 
+    if rmse.ndim == 1:
         
-            if error[m,i] > 0.5:
-            
-                pred_time[i] = m * dt 
-            
-                break 
+        if np.all(rmse < threshold):
         
-        if np.all(error[:,i] < 0.5):
+            pred_time = 0.
             
-            pred_time[i] = 0.
+            print('the RMSE is always smaller than 0.5 for the entire time ' +
+            'window')
+        
+        else:
             
-            print('for $/epsilon$ = ', eps[i], 
-        'the RMSE is always smaller than 0.5 for the entire time window')
+            pred_time = np.where(rmse > threshold)[0][0]*dt
+        
             
-    return pred_time
+        return pred_time
+    
+    else:
+        
+        num_of_perturbations = rmse.shape[1]
+        pred_time1 = np.zeros(num_of_perturbations)
+    
+    
+        for i in range(num_of_perturbations):
+            
+            if np.all(rmse[:,i] < threshold):
+            
+                pred_time1[i] = 0.
+            
+                print('for perturbation number', i, 
+                      'the RMSE is always smaller than 0.5 for the entire time ' +
+                      'window')
+            
+            else:
+            
+                pred_time1[i] = np.where(rmse[:,i] > threshold)[0][0]*dt
+            
+            
+            
+        return pred_time1
             
     
     

@@ -6,240 +6,162 @@ Created on Sun Aug 21 12:58:03 2022
 """
 import configparser
 import numpy as np
-import pandas as pd
-import dataframe_image as dfi
-from tabulate import tabulate
-from scipy.integrate import odeint
-from lorenz import (lorenz, perturbation, difference, func, fitting,
-                    RMSE, prediction, read_parameters, ensemble)
+import lorenz
 
-from plots import (xzgraph, plot_difference, plot_rmse,
-                   plot_3dsolution, plot_animation,plot_ensemble, 
-                   plot_ensemble_trajectories, pred_time_vs_perturbation)
 
+#--------------------------READING CONFIGURATION FILE-------------------------#
+
+
+
+default_file = 'config.ini' #default configuration file
+configuration_file = lorenz.reading_configuration_file(default_file)
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read(configuration_file)
+
+path_data = config.get('Paths to files', 'path_data')
+
+#---------------------------Lorenz System Parameters--------------------------#
+
+sigma = float(config.get('Parameters', 'sigma'))
+
+b = float(config.get('Parameters', 'b'))
+
+r1 = float(config.get('Parameters', 'r1')) #chaotic solution
+
+r2 = float(config.get('Parameters', 'r2')) #non-chaotic solution
 
 
-#-----------------------Parameters-------------------------#
+set_A, set_B = [sigma, b, r1], [sigma, b, r2]
 
 
-sigma1 = config.get('Parameters', 'sigma')
-sigma = float(sigma1)
+#--------------------------Integration Parameters-----------------------------#
 
-b1 = config.get('Parameters', 'b')
-b = float(b1)
+num_steps = int(config.get('Integration settings', 'num_steps'))
 
-r_1 = config.get('Parameters', 'r1') #chaotic solution
-r1 = float(r_1)
+dt = float(config.get('Integration settings', 'dt'))
 
-r_2 =  config.get('Parameters', 'r2') #non-chaotic solution
-r2 = float(r_2)
-
-#-----------------Integration parameters-------------------#
-
-num_steps0 = config.get('Integration settings', 'num_steps')
-num_steps = int(num_steps0)
-
-dt1 = config.get('Integration settings', 'dt')
-dt = float(dt1)
-
-N1 = config.get('Integration settings', 'N')
-N = int(N1)
+N = int(config.get('Integration settings', 'N'))
 
 IC01 = config.get('Initial condition', 'IC') #initial condition
-IC0 = read_parameters(IC01)
+IC0 = np.array(IC01.split(','), dtype=float)
+
+
+#----------------------------Analysis Parameters------------------------------#
+
+which_variable = int(config.get('Perturbations', 'which_variable'))
 
 eps1 = config.get('Perturbations', 'eps') #perturbations
-eps = read_parameters(eps1)
+eps = np.array(eps1.split(','), dtype=float)
     
+random_seed = int(config.get('Integration settings', 'Random seed'))
+
+alpha = float(config.get('Analysis', 'Threshold'))
+
+idx_diff = int(config.get('Plotting','which_eps_for_difference'))
+
+
+#------------------------------INTEGRATION------------------------------------#
+
 
 t = np.linspace(0,num_steps,num_steps)*dt #time variable
 
-
-#-----------------------Integration------------------------#
+IC = lorenz.perturbation(IC0,eps,which_variable) #perturbed initial conditions
 
 
 #The following are the solution for each time step,
-#for each variable and for each IC
+#for each variable, for each IC and for each value of r
 
-sol_1 = np.zeros((num_steps , 3, len(eps)+1)) #chaotic solution
+sol_chaotic = lorenz.integration_Lorenz_system(lorenz.lorenz, num_steps, t, IC, 
+                                               set_A)
 
-sol_2 = np.zeros((num_steps , 3, len(eps)+1)) #non-chaotic solution
- 
+sol_non_chaotic = lorenz.integration_Lorenz_system(lorenz.lorenz, num_steps, t,
+                                                   IC, set_B)
 
+sol_true = sol_chaotic[:,:,0]
 
-IC = perturbation(IC0,eps) #perturbed initial conditions
+#---------------------------------ANALYSIS------------------------------------#
 
-
-#Solutions for each value of r and for each IC
-
-for i in range(len(eps)+1):
-    
-    sol_1[:,:,i] = odeint(lorenz,IC[i,:],t,args=(sigma,b,r1)) 
-    #chaotic solution
-    sol_2[:,:,i] = odeint(lorenz,IC[i,:],t,args=(sigma,b,r2))
-    #non-chaotic solution
-
-
-#-------------------------ANALYSIS-------------------------#
 
 #The difference is performed only between the solution of the unperturbed 
 #case and the one of the first perturbed case, as a preliminary analysis.
 #The difference is calculated for both chaotic and non-chaotic solution.
 
-delta_x = np.zeros((num_steps, 2)) 
+delta_chaotic = lorenz.difference(sol_true[:,:], sol_chaotic[:,:,idx_diff]) 
+
+delta_non_chaotic = lorenz.difference(sol_non_chaotic[:,:,0], 
+                                        sol_non_chaotic[:,:,idx_diff])
 
 #The RMSE and the prediction time are calculated for each perturbed case
 #with r = 28 because it would be trivial for r = 9.
 
-error = np.zeros((num_steps, len(eps)))
-pred_time = np.zeros(len(eps))
-                 
+rmse = lorenz.RMSE(sol_chaotic)
 
-delta_x[:,0] = difference(sol_1[:,:,0], sol_1[:,:,7]) 
-delta_x[:,1] = difference(sol_2[:,:,0], sol_2[:,:,7])
+pred_time = lorenz.prediction(rmse, dt, alpha)
 
-for i in range(1,len(eps)+1): 
-    
-    error[:,i-1] = RMSE(sol_1[:,:,0], sol_1[:,:,i])
-    
-pred_time = prediction(error, num_steps, dt, eps)
+fit, popt, p_low, p_top = lorenz.fitting(lorenz.func,eps,pred_time, -1.1, 10)
+fit1, popt1, p_low1, p_top1 = lorenz.fitting(lorenz.func,eps[0:4],
+                                             pred_time[0:4], -1.1, 10)
 
-#--------------------------ENSEMBLE------------------------------#
+
+#------------------------------ENSEMBLE INTEGRATION---------------------------#
+
 
 #Same procedure but with an ensemble of perturbations: showing how to improve
 #the prediction!
 
-eps_ens = np.zeros(N)
-pred_time_ens = np.zeros(N)
-sol_ens = np.zeros((num_steps , 3, N))
-error_ens = np.zeros((num_steps, N))
+eps_ens = lorenz.generate_random_perturbation(random_seed, N)
 
-np.random.seed(42)
+IC_ens = lorenz.perturbation(IC0, eps_ens, which_variable)
 
-for k in range(N):
-       
-    eps_ens[k] = np.random.random()*1.50 - 0.75
-
-#eps_ens = np.logspace(-5, 0., num=N, base=10.0)
-
-IC_ens = perturbation(IC0,eps_ens)
-
-for i in range(N):
-    
-    sol_ens[:,:,i] = odeint(lorenz,IC_ens[i,:],t,args=(sigma,b,r1)) 
-    error_ens[:,i] = RMSE(sol_1[:,:,0], sol_ens[:,:,i])
+sol_ens =  lorenz.integration_Lorenz_system(lorenz.lorenz, num_steps, t, 
+                                            IC_ens, set_A)
 
 
+#------------------------------ENSEMBLE ANALYSIS------------------------------#
+
+
+rmse_ens =  lorenz.RMSE(sol_ens)
+
+spread, sol_ave = lorenz.ensemble(sol_ens) 
+ 
 #R is the mean of the RMSEs and L is the RMSE of the mean.
 #The aim is to compare the 2 and show how introducing an ensemble of simulations
 #allows to halve the RMSE with respect to the one relative to a single simulation.
 
-R = np.mean(error_ens, 1) 
-   
-spread, sol_ave = ensemble(sol_ens)        
+R, L = lorenz.calculating_L_and_R(sol_true, sol_ave, rmse_ens)
 
-L = RMSE(sol_1[:,:,0], sol_ave[:,:])
-
-pred_times = np.zeros(2)
-
-errors = [L, R]
-
-for j in errors:
-    
-    for m in range(num_steps): 
-
-        if j[m] > 0.5:
-    
-            pred_times[0] = m * dt 
-    
-            break 
+pred_time_L = lorenz.prediction(L, dt, alpha)
+pred_time_R = lorenz.prediction(R, dt, alpha)
     
 
-#------------------------Plots & Tables--------------------------#
-
-path = config.get('Paths to files', 'path')
-
-#PLOTTING both chaotic and non-chaotic solution for
-#the unpertubed case in the x,z plane
-
-xzgraph(sol_1[:,:,0],r1) 
-xzgraph(sol_2[:,:,0],r2) 
-
-plot_3dsolution(sol_2[:,:,0],r2)
-
-#3D animation of the chaotic solution for the unperturbed and a 
-#perturbed case 
-print('\n')
-print('---------------Preparing the animation--------------')
-print('------This operation may require a few seconds------')
-
-plot_animation(sol_1[:,:,0],sol_1[:,:,9],r1,eps[9])
+#-------------------------------SAVING TO FILE--------------------------------#
 
 
+np.save(path_data+'/sol_chaotic',sol_chaotic)
+np.save(path_data+'/sol_non_chaotic',sol_non_chaotic)
 
-#PLOTTING the results of the analysis:
+np.save(path_data+'/delta_chaotic',delta_chaotic)
+np.save(path_data+'/delta_non_chaotic',delta_non_chaotic)
+np.save(path_data+'/rmse',rmse)
+np.save(path_data+'/pred_time',pred_time)
 
-plot_difference(delta_x[:,0],delta_x[:,1],t,eps[7]) 
+np.save(path_data+'/fit',fit) 
+np.save(path_data+'/popt',popt)
+p_low.dump(path_data+'/p_low')
+p_top.dump(path_data+'/p_top')
 
-for i in range(0,len(eps),2): 
-   
-    plot_rmse(error[:,i],t, r1, eps[i], pred_time[i])
- 
-#FITTING: predictability time vs applied perturbation.
-#The aim is to verify their logarithmic dependence.
-#There are 2 separate fit: one for all the available values of the perturbation 
-#and the other just for the infinitesimal values
+np.save(path_data+'/fit1',fit1) 
+np.save(path_data+'/popt1',popt1)
+p_low1.dump(path_data+'/p_low1')
+p_top1.dump(path_data+'/p_top1')
 
-fit, popt, p_low, p_top = fitting(func,eps,pred_time, -1.1, 10)
-fit1, popt1, p_low1, p_top1 = fitting(func,eps[0:4],pred_time[0:4], -1.1, 10)
-
-
-pred_time_vs_perturbation(pred_time, eps, fit, popt, p_low, p_top, fit1, popt1, 
-                          p_low1, p_top1)
-
-#PLOTTING the results of the ensemble analysis 
-plot_ensemble(L,R,t)
-plot_ensemble_trajectories(sol_ave,spread,t)
-
-
-#Creating a table with the values of the perturbation and
-#of the corresponding prediction times 
-
-#---------------------Printing to terminal:------------------------
+np.save(path_data+'/ensemble_solution', sol_ens)
+np.save(path_data+'/ensemble_spread', spread)
+np.save(path_data+'/ensemble_mean', sol_ave)
+np.save(path_data+'/L',L)
+np.save(path_data+'/R',R)
+np.save(path_data+'/pred_time_R',pred_time_R)
+np.save(path_data+'/pred_time_L',pred_time_L)
 
 
-print('\n')
-print('Lorenz system with r = 28:')
-print('\n')
-
-data = np.column_stack((eps, pred_time))
-col_names = ["Perturbation", "Predictability time"]
-print('Single forecast:')
-print(tabulate(data, headers=col_names, tablefmt="fancy_grid"))
-
-data1 = np.column_stack((pred_times[0], pred_times[1]))
-col_names1 = ["Prediction time L", "Predictability time R"]
-print('Ensemble forecast:')
-print(tabulate(data1, headers=col_names1, tablefmt="fancy_grid"))
-
-#-------------------Saving to csv and to png files:-----------------
-
-df = pd.DataFrame(data = {'Perturbation': eps,'Predictability time': pred_time})
-#df.to_csv(path + '/Table_pred_time.csv', index = False, sep = " ", decimal= ",",
-#          columns=['Perturbation','Predictability time'])
-dfi.export(df, path + '/table_predtime.png',fontsize = 30)
-
-col1 = pred_times[0]
-col2 = pred_times[1]
-
-df1 = pd.DataFrame(data = {'Predictability time L': col1, 
-                           'Predictability time R': col2},index= [1])
-#df1.to_csv(path + '/Table_L&R.csv', index = False, sep = " ", decimal= ",",
-#           columns=['Predictability time L', 'Predictability time R'])
-dfi.export(df1, path + '/table_LR.png',fontsize = 30)
-
-print('\n')
-print('Plots and tables are now available in the folder: output')

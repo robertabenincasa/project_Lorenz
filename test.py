@@ -15,9 +15,6 @@ from lorenz import (lorenz, perturbation, difference, func, fitting,
                     RMSE, prediction, read_parameters, ensemble)
 
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-
 #-------------------------------------------------------------#
 
 dt1 = config.get('Integration settings', 'dt')

@@ -4,23 +4,30 @@ Created on Sun Aug 21 13:40:54 2022
 
 @author: roberta benincasa
 """
-import configparser
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
 
-
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-path = config.get('Paths to files', 'path')
-
 def xzgraph(
         sol: np.ndarray,
         r : float):
-
+    
+    """ This function produces a plot of the solution of the integration of the 
+    Lorenz system in (x,z) plane.
+    
+        Arguments:
+        ----------
+            sol: np.ndarray(floats)
+            Solution of the integration of the Lorenz system. The first 
+            dimension represent time while the second is used to specify the 
+            variable (x,y or z).
+            
+            r: float
+            Parameter r of the Lorenz system used in the integration.
+       
+    """
     
     fig,(ax)=plt.subplots(1,1,figsize=(8,6))
     ax.grid()
@@ -33,13 +40,27 @@ def xzgraph(
     
     ax.set_xlabel('x')
     ax.set_ylabel('z')
+
     
-    plt.savefig(path +'/xzplane_plot_r=%i'%r + '.png')
-    plt.show()
     
 def plot_3dsolution(
         sol: np.ndarray,
         r: float):
+    
+    """ This function produces a 3D plot of the solution of the integration of
+    the Lorenz system.
+    
+        Arguments:
+        ----------
+            sol: np.ndarray(floats)
+            Solution of the integration of the Lorenz system. The first 
+            dimension represent time while the second is used to specify the 
+            variable (x,y or z).
+            
+            r: float
+            Parameter r of the Lorenz system used in the integration.
+        
+        """
     
     plt.figure(figsize = (8,6))
     ax = plt.axes(projection='3d')
@@ -53,11 +74,42 @@ def plot_3dsolution(
     ax.set_ylabel('y', labelpad=20)
     ax.set_zlabel('z', labelpad=20)
     
-    plt.savefig(path + '/3Dplot_r=%i'%r + '.png')
-    plt.show()
+
     
     
-def plot_animation(sol, sol1, r, eps):
+def plot_animation(sol: np.ndarray,
+                   sol1: np.ndarray,
+                   r: float,
+                   eps: float,
+                   ) -> animation.FuncAnimation:
+    
+    """ This function produces an animation of the solution of the integration 
+    of the Lorenz system for both the perturbed and unperturbed one, both as 
+    functions of time.
+    
+        Arguments:
+        ----------
+            sol: np.ndarray(floats)
+            Unperturbed solution of the integration of the Lorenz system. The first 
+            dimension represent time while the second is used to specify the 
+            variable (x,y or z).
+            
+            sol1: np.ndarray(floats)
+            Perturbed solution of the integration of the Lorenz system. The first 
+            dimension represent time while the second is used to specify the 
+            variable (x,y or z).
+            
+            r: float
+            Parameter r of the Lorenz system used in the integration.
+            
+            eps: float
+            Value of the perturbation applied to the intial condition.
+            
+        Returns:
+        --------
+            anim: matplotlib.animation.FuncAnimation
+            Animation.
+   """
     
     fig = plt.figure(figsize=(10,10))
     ax = fig.add_subplot( projection='3d')
@@ -110,9 +162,9 @@ def plot_animation(sol, sol1, r, eps):
     anim = animation.FuncAnimation(fig, animate, init_func=init(), 
                             frames=300, interval=2, blit=False)
     
-    anim.save(path + '/animation.gif')
-   # plt.show()
-    plt.savefig(path + '/3Dplot_r=%i'%r + '_eps=' + np.format_float_scientific(eps)+'.png')
+    return anim
+
+
     
 def plot_difference(
         diff: np.ndarray,
@@ -121,6 +173,29 @@ def plot_difference(
         eps: float,
         ):
     
+    """ This function produces a plot of the difference between the unperturbed 
+    and the perturbed solution of the integration of the Lorenz system along 
+    a single component for both value of r, as a function of time.
+    
+        Argumets:
+        ---------
+            diff: np.ndarray(floats)
+            Difference between the unperturbed and the perturbed solution of 
+            the integration of the Lorenz system along a single component for 
+            r = 28.
+            
+            diff1: np.ndarray(floats)
+            Difference between the unperturbed and the perturbed solution of 
+            the integration of the Lorenz system along a single component for 
+            r = 9.
+            
+            t: np.ndarray(floats)
+            Time.
+            
+            eps: float
+            Value of the perturbation applied to the intial condition.
+                    
+   """
     
     fig,((ax),(ax1))=plt.subplots(2,1, sharex=True, figsize=(8,6))
     
@@ -134,11 +209,9 @@ def plot_difference(
     ax1.legend(loc='best')
     ax1.set_xlabel('t')
     ax1.ticklabel_format(axis='y', style='sci', scilimits=(-2,-10))
-                      
     
     
-    plt.savefig(path + '/difference.png')
-    plt.show()
+    
     
 def plot_rmse(
         rmse: np.ndarray,
@@ -146,6 +219,30 @@ def plot_rmse(
         r: float,
         e: float,
         pred_time: float):
+    
+    """ This function produces a plot of the RMSE as a function of time 
+    both in log scale and in linear scale. The value of the predictability time
+    is highlighted with a vertical line too.
+    
+        Arguments:
+        ----------
+            rmse: np.ndarray(floats)
+            RMSE as a function of time.
+            
+            t: np.ndarray(floats)
+            Time.
+            
+            r: float
+            Parameter r of the Lorenz system used in the integration.
+            
+            e: float
+            Value of the perturbation applied to the intial condition.
+            
+            pred_time: float
+            Value of the predictability time for the chosen values of the 
+            perturbation and of r.
+            
+        """
     
     
     fig,(ax,bx)=plt.subplots(2,1, sharex=True, figsize=(8,6))
@@ -166,19 +263,32 @@ def plot_rmse(
                label = 'prediction time = '+ np.format_float_scientific(pred_time))
     bx.set_title('Root Mean Square Error - Log scale - r = %i'%r)
     
-    
-    
     bx.legend(loc='best')
     bx.set_xlabel('t')
-    
-    plt.savefig(path + '/rmse_r=%i'%r + '_eps='+ np.format_float_scientific(e)+'.png')
-    plt.show()
+
+
     
 def plot_ensemble(
         L: np.ndarray,
         R: np.ndarray,
         t: np.ndarray):
     
+    """ This function produces a plot of the RMSE of the ensemble mean (L) and
+     of the mean of the RMSEs of the ensemble, both as functions of time.
+     
+         Arguments:
+         ----------
+             L: np.ndarray(floats)
+             RMSE of the ensemble mean as a function of time.
+             
+             R: np.ndarray(floats)
+             The mean RMSE of the ensemble as a function of time.
+             
+             t: np.ndarray(floats)
+             Time.
+             
+             
+  """
     fig,(ax)=plt.subplots(1,1,figsize=(10,4))
     
     ax.grid()
@@ -188,14 +298,34 @@ def plot_ensemble(
     ax.set_xlabel('t')
     ax.legend(loc='best')
     
-    plt.savefig(path + '/ensemble.png')
-    plt.show()
     
     
 def plot_ensemble_trajectories(
         sol: np.ndarray,
         S: np.ndarray,
         t: np.ndarray):
+    
+    """ This function produces a plot of the ensemble mean as a function of 
+    time for each of the 3 variable: x, y and z.
+    The ensemble spread is indicated as a shaded area. 
+    
+        Arguments:
+        ----------
+            sol: np.ndarray(floats)
+            Ensemble mean of the solutions of the integration of the Lorenz 
+            system. The first dimension represent time while the second is used 
+            to specify the variable (x,y or z).
+            
+            S: np.ndarray(floats)
+            Ensemble spread of the solutions of the integration of the Lorenz 
+            system. The first dimension represent time while the second is used 
+            to specify the variable (x,y or z).
+            
+            t: np.ndarray(floats)
+            Time.
+            
+            
+   """
     
     fig,((ax),(ax1),(ax2))=plt.subplots(3,1, sharex=True, figsize=(10,8))
     
@@ -218,8 +348,6 @@ def plot_ensemble_trajectories(
     ax2.legend(loc='best')
     
     
-    plt.savefig(path + '/ensemble_trajectories.png')
-    plt.show()
     
     
 def pred_time_vs_perturbation(
@@ -235,7 +363,44 @@ def pred_time_vs_perturbation(
         p_top1: np.ndarray,
         ):
 
+    """ This function produces a plot of the 2 fit performed on the relation
+    between the predictability time and the perturbation applied. The data are
+    reported as points, whereas the uncertainty as a shaded area.
     
+        Arguments:
+        ----------
+            pred_time: np.ndarray(floats)
+            Predictability time for each value of the perturbation.
+            
+            eps: np.ndarray(floats)
+            Array with the values of the pertubation.
+            
+            fit, fit1: np.ndarray(floats)
+            First and second fit, i.e. y =  ax + b.
+            
+            popt, popt1: np.ndarray(floats)
+            Array with the values of the parameters a and b of the first and 
+            second fit, respectively.
+            
+            p_low, p_low1: np.ndarray(floats)
+            Lower limit for the uncertainty for the first and 
+            second fit, respectively.
+            
+            p_top, p_top1: np.ndarray(floats)
+            Upper limit for the uncertainty for the first and 
+            second fit, respectively.
+            
+        Note:
+        -----
+            For further information, please see the following link:
+                
+            ->https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mstats.mquantiles.html
+            
+            
+            
+            
+            
+"""
     fig,(ax)=plt.subplots(1,1,figsize=(8,6))
     ax.grid()
     
@@ -251,6 +416,3 @@ def pred_time_vs_perturbation(
     ax.legend(loc='best')
     
     ax.set_xlabel('Perturbation')
-    
-    plt.savefig(path +'/pred_time_vs_perturbation.png')
-    plt.show()
