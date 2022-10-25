@@ -87,10 +87,11 @@ sol_true = sol_chaotic[:,:,0]
 #case and the one of the first perturbed case, as a preliminary analysis.
 #The difference is calculated for both chaotic and non-chaotic solution.
 
-delta_chaotic = lorenz.difference(sol_true[:,:], sol_chaotic[:,:,idx_diff]) 
+delta_chaotic = lorenz.difference(sol_true[:,which_variable], 
+                                  sol_chaotic[:,which_variable,idx_diff]) 
 
-delta_non_chaotic = lorenz.difference(sol_non_chaotic[:,:,0], 
-                                        sol_non_chaotic[:,:,idx_diff])
+delta_non_chaotic = lorenz.difference(sol_non_chaotic[:,which_variable,0], 
+                                    sol_non_chaotic[:,which_variable,idx_diff])
 
 #The RMSE and the prediction time are calculated for each perturbed case
 #with r = 28 because it would be trivial for r = 9.

@@ -14,6 +14,7 @@ from scipy.stats.mstats import mquantiles
 
 
 
+
 def reading_configuration_file(default_file: str,
                                )->str:
     
@@ -41,7 +42,12 @@ def reading_configuration_file(default_file: str,
         
         
         """
-    
+   
+        
+    if path.exists(default_file) == False:        
+        
+        raise NameError('Invalid default configuration file - This file does '+
+                        'not exist')
     
     while True:
         
@@ -57,7 +63,7 @@ def reading_configuration_file(default_file: str,
     
         else:
             
-            print('\n'+'--------------------->FILE '+ configuration_file +
+            raise NameError('\n'+'--------------------->FILE '+ configuration_file +
                   ' DOES NOT EXIST. PLEASE TRY AGAIN<--------------------')
         
 
@@ -207,7 +213,7 @@ def integration_Lorenz_system(lorenz: Callable,
         
         """
     
-    sol = np.zeros((num_steps , 3, IC.shape[0])) 
+    sol = np.zeros((num_steps, 3, IC.shape[0])) 
     
     sigma, b, r = set_parameters
     
@@ -248,7 +254,7 @@ def difference(
                 
     """
     
-    delta_x = sol1[:,0] - sol2[:,0]
+    delta_x = sol1 - sol2
     
     return delta_x 
 
