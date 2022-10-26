@@ -6,6 +6,7 @@ Created on Sat Aug 20 23:07:33 2022
 """
 from os import path
 import numpy as np
+from scipy.stats import uniform
 from typing import Callable, Union
 from scipy.optimize import curve_fit
 from scipy.integrate import odeint
@@ -163,7 +164,7 @@ def perturbation(
     
     """
     
-    IC = np.ones((len(eps)+1,3))
+    IC = np.ones((eps.shape[0]+1,3))
     
     IC = IC * init_cond
     
@@ -324,14 +325,19 @@ def generate_random_perturbation(
         --------
             eps: np.ndarray(floats)
             Array of dimension N containing N random numbers in the range
-            [-0.75, 0.75].
+            [-0.75, 0.75).
+            
+            random: np.ndarray(floats)
+            Array of dimension N containing N random numbers in the range
+            [0, 1.).
+                
     
     
     """
     
-    np.random.seed(random_seed)
+    rng = np.random.default_rng(random_seed)
 
-    eps = np.random.rand(N)*1.50 - 0.75
+    eps = uniform.rvs(loc = -0.75, scale = 1.5,size=N,random_state=rng)
     
     return eps
 
