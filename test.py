@@ -13,7 +13,7 @@ from os import path
 import pytest
 from unittest import mock
 import lorenz
-
+from scipy.integrate import odeint
 #----------------------------PARAMETERS TO BE SET-----------------------------#
 
 default_file_true = 'config.ini'
@@ -104,13 +104,10 @@ IC_0 = np.array([9, 10, 20])
 
 
 # @given(state = exnp.arrays(np.dtype(float),(3,NUM_STEPS),
-#         elements = st.floats(min_value = -50,max_value= 50, allow_nan=False,
-#         allow_infinity=False)), b = st.floats(min_value = 0, max_value= 10, 
-#         allow_nan=False,allow_infinity=False), sigma = st.floats(min_value = 0,
-#         max_value= 20, allow_nan=False, allow_infinity=False), 
-#         r = st.floats(min_value = 0,max_value= 30, allow_nan=False,
-#         allow_infinity=False))
-# @settings(max_examples = 100)  
+#         elements = st.floats()), 
+#         b = st.floats(), sigma = st.floats(), 
+#         r = st.floats())
+# @settings(max_examples = 10)  
 # def test_lorenz_is_correct(state, sigma, b, r):
 #     """ This function tests that the lorenz function returns the correct Lorenz 
 #     system.
@@ -136,12 +133,11 @@ IC_0 = np.array([9, 10, 20])
      
     
 # @given(eps = exnp.arrays(np.dtype(float), N ,elements = 
-#     st.floats(min_value = -1.1,max_value= 1.1,allow_nan=False, 
-#     allow_infinity=False)), IC0 = exnp.arrays(np.dtype(float), 3 ,elements = 
-#         st.floats(min_value = -20,max_value= 20,allow_nan=False, 
-#         allow_infinity=False)), which_variable = st.integers(min_value = 0,
-#         max_value= 2))
-# @settings(max_examples = 100)
+#     st.floats(min_value = -1.1,max_value= 1.1,allow_nan=False)), 
+#     IC0 = exnp.arrays(np.dtype(float), 3 ,elements = 
+#     st.floats(min_value = -20,max_value= 20,allow_nan=False)), 
+#     which_variable = st.integers(min_value = 0, max_value= 2))
+# @settings(max_examples = 10)
 # def test_original_ic_is_preserved(eps, IC0, which_variable):
     
 #     """ This function tests that the perturbation function preserves the 
@@ -159,12 +155,11 @@ IC_0 = np.array([9, 10, 20])
         
     
 # @given(eps = exnp.arrays(np.dtype(float), N ,elements = 
-#     st.floats(min_value = -1.1,max_value= 1.1,allow_nan=False, 
-#     allow_infinity=False)), IC0 = exnp.arrays(np.dtype(float), 3 ,elements = 
-#         st.floats(min_value = -20,max_value= 20,allow_nan=False, 
-#         allow_infinity=False)), which_variable = st.integers(min_value = 0,
-#         max_value= 2))
-# @settings(max_examples = 100)
+#     st.floats(min_value = -1.1,max_value= 1.1,allow_nan=False), 
+#     IC0 = exnp.arrays(np.dtype(float), 3 ,elements = 
+#     st.floats(min_value = -20,max_value= 20,allow_nan=False)), 
+#     which_variable = st.integers(min_value = 0, max_value= 2))
+# @settings(max_examples = 10)
 # def test_ic_is_applied_only_on_the_chosen_axis(eps, IC0, which_variable):
 #     """ This function tests that the perturbation function applies the 
 #     perturbation on the IC only on the axis identified by the which_variable 
@@ -188,16 +183,54 @@ IC_0 = np.array([9, 10, 20])
 #     " the chosen axis")
 
 
+# @given(eps = exnp.arrays(np.dtype(float), N ,elements = 
+#     st.floats()), IC0 = exnp.arrays(np.dtype(float), 3 ,elements = 
+#     st.floats()), which_variable = st.integers())
+# @settings(max_examples = 10)
+# def test_perturbation_exceptions(eps, IC0, which_variable):
+    
+#     """ This function tests that the perturbation function raises the expected
+#     exceptions. In particular, it tests that it raises a ValueError when 
+#     the applied perturbation is infinite or a nan and that an IndexError is
+#     raised when the index is out of bounds for the number of variables.
+   
+#         GIVEN: the arguments of the perturbation function
+#         WHEN: I apply the perturbation function
+#         THEN: I verify that a ValueError and IndexError are raised when 
+#         expected.
+       
+#         """
+
+#     if np.any(np.isnan(eps)) == True or np.any(np.isinf(eps)) == True:
+        
+#         with pytest.raises(ValueError):
+            
+#             lorenz.perturbation(IC0, eps, which_variable)
+            
+#     if np.any(np.isnan(IC0)) == True or np.any(np.isinf(IC0)) == True:
+        
+#         with pytest.raises(ValueError):
+            
+#             lorenz.perturbation(IC0, eps, which_variable)
+            
+#     if which_variable >= 3:
+        
+#         with pytest.raises(IndexError):
+            
+#             lorenz.perturbation(IC0, eps, which_variable)
+            
+        
+
+
 #--------------------------------DIFFERENCE-----------------------------------#
 
         
 # @given(sol = exnp.arrays(np.dtype(float),NUM_STEPS,
-#         elements = st.floats(min_value = -50,max_value= 50,allow_nan=False,
-#         allow_infinity=False)))
-# @settings(max_examples = 100)
+#         elements = st.floats(min_value = -50,max_value= 50,allow_nan=False)))
+# @settings(max_examples = 10)
 # def test_difference_identical_trajectories(sol):
-#     """ This function tests that the difference function between two identical trajectory
-#     is equal to zero.
+#     """ This function tests that the difference function between two identical 
+#     trajectory is equal to zero.
     
 #         GIVEN: a trajectory
 #         WHEN: I apply the difference function using the former for both
@@ -211,11 +244,10 @@ IC_0 = np.array([9, 10, 20])
     
     
 # @given(sol = exnp.arrays(np.dtype(float),NUM_STEPS,
-#         elements = st.floats(min_value = -50,max_value= 50,allow_nan=False,
-#         allow_infinity=False)), sol1 = exnp.arrays(np.dtype(float),NUM_STEPS,
-#         elements = st.floats(min_value = -50,max_value= 50,allow_nan=False,
-#         allow_infinity=False)))
-# @settings(max_examples = 100)
+#         elements = st.floats(min_value = -50,max_value= 50)),
+#       sol1 = exnp.arrays(np.dtype(float),NUM_STEPS,
+#         elements = st.floats(min_value = -50,max_value= 50)))
+# @settings(max_examples = 10)
 # def test_difference_is_correct(sol, sol1):
 #     """ This function tests that the difference function actually performs the 
 #     difference between the 2 given array.
@@ -228,11 +260,10 @@ IC_0 = np.array([9, 10, 20])
 #     assert np.all(lorenz.difference(sol, sol1) == sol - sol1)
         
 # @given(sol = exnp.arrays(np.dtype(float),NUM_STEPS,
-#         elements = st.floats(min_value = -50, max_value= 50,allow_nan=False,
-#         allow_infinity=False)), sol1 = exnp.arrays(np.dtype(float),NUM_STEPS,
-#         elements = st.floats(min_value = -50, max_value= 50,allow_nan=False,
-#         allow_infinity=False)))
-# @settings(max_examples = 100)  
+#         elements = st.floats(min_value = -50, max_value= 50)), 
+#       sol1 = exnp.arrays(np.dtype(float),NUM_STEPS,
+#         elements = st.floats(min_value = -50, max_value= 50)))
+# @settings(max_examples = 10)  
 # def test_difference_antisymmetry(sol, sol1):
 #     """ This function tests that the difference function is antisymmetric.
     
@@ -249,31 +280,104 @@ IC_0 = np.array([9, 10, 20])
 #---------------------------INTEGRATION_LORENZ_SYSTEM-------------------------#
 
 
-# @given(b = st.floats(min_value = 0.001, max_value= 10, 
-#         allow_nan=False,allow_infinity=False), sigma = st.floats(min_value = 0.001,
-#         max_value= 20, allow_nan=False, allow_infinity=False), 
-#         r = st.floats(min_value = 0.001,max_value= 0.99, allow_nan=False,
-#         allow_infinity=False),eps = exnp.arrays(np.dtype(float), N ,elements = 
+@given(b = st.floats(min_value = 0.001, max_value= 10, 
+        allow_nan=False), sigma = st.floats(min_value = 0.001,
+        max_value= 20, allow_nan=False), 
+        r = st.floats(min_value = 0., max_value= 1., allow_nan=False,
+        exclude_min = True, exclude_max = True),
+        eps = exnp.arrays(np.dtype(float), N ,elements = 
+        st.floats(min_value = 1E-10,max_value= 1.1,allow_nan=False)),  
+        which_variable = st.integers(min_value = 0,
+        max_value= 2))
+@settings(max_examples = 10)         
+def test_lorenz_integration_zero_is_an_attractor(sigma, b, r, eps, which_variable):
+    """ This function tests that the result of the integration satisfies the
+    following property of the Lorenz system: zero is an attractor for the system
+    for 0 < r < 1.
+        
+        GIVEN: r = 1  
+        WHEN: I call the function integration_Lorenz_system
+        THEN: I obtain that the solution for the last time steps is close to zero.
+    
+    """
+    
+    NUM_STEPS = 12000
+    
+    t = np.linspace(0,NUM_STEPS,NUM_STEPS)*dt
+    
+    set_ = [sigma, b, r]
+    
+    IC = lorenz.perturbation(IC_0,eps,which_variable)
+    
+    sol = lorenz.integration_Lorenz_system(lorenz.lorenz,NUM_STEPS, t, IC, set_)
+    
+    zeros = np.zeros((10,3,N+1))
+    
+    assert np.all(np.isclose(sol[NUM_STEPS-10:NUM_STEPS,:,:],zeros,rtol=1E-7) == True)
+    
+
+
+@given(b = st.floats(min_value = 0.001, max_value= 10, 
+        allow_nan=False), sigma = st.floats(min_value = 0.001,
+        max_value= 20, allow_nan=False), 
+        r = st.floats(min_value = 1., max_value= 24., allow_nan=False,
+        exclude_min = True, exclude_max = True),
+        eps = exnp.arrays(np.dtype(float), N ,elements = 
+        st.floats(min_value = 1E-10,max_value= 1.1,allow_nan=False)),  
+        which_variable = st.integers(min_value = 0,
+        max_value= 2))
+@settings(max_examples = 10)         
+def test_lorenz_integration_critical_points(sigma, b, r, eps, which_variable):
+    """ This function tests that the result of the integration satisfies the
+    following property of the Lorenz system: zero is an attractor for the system
+    for 0 < r < 1.
+        
+        GIVEN: r = 1  
+        WHEN: I call the function integration_Lorenz_system
+        THEN: I obtain that the solution for the last time steps is close to zero.
+    
+    """
+    
+    NUM_STEPS = 12000
+    
+    t = np.linspace(0,NUM_STEPS,NUM_STEPS)*dt
+    
+    set_ = [sigma, b, r]
+    
+    IC = lorenz.perturbation(IC_0,eps,which_variable)
+    
+    if (sigma-b-1) != 0. and r < sigma * (sigma+b+3)/(sigma-b-1):
+    
+        sol = lorenz.integration_Lorenz_system(lorenz.lorenz,NUM_STEPS, t, IC, set_)
+    
+        point_1 = [(np.sqrt(b*(r-1))),(np.sqrt(b*(r-1))), r-1]
+        
+        point_2 = [-(np.sqrt(b*(r-1))),-(np.sqrt(b*(r-1))), r-1]
+        
+    
+        assert (np.all(np.isclose(sol[NUM_STEPS-1,:,0],point_1,rtol=1E-7) == True) or
+                np.all(np.isclose(sol[NUM_STEPS-1,:,0],point_2,rtol=1E-7) == True))
+
+
+# @given(b = st.floats(), sigma = st.floats(), 
+#         r = st.floats(),eps = exnp.arrays(np.dtype(float), N ,elements = 
 #         st.floats(min_value = -1.1,max_value= 1.1,allow_nan=False, 
-#         allow_infinity=False)),  which_variable = st.integers(min_value = 0,
+#         allow_infinity=False)), which_variable = st.integers(min_value = 0,
 #         max_value= 2))
-# @settings(max_examples = 100)         
+# @settings(max_examples = 10)         
 # def test_lorenz_integration(sigma, b, r, eps, which_variable):
     
 #     set_ = [sigma, b, r]
     
 #     IC = lorenz.perturbation(IC_0,eps,which_variable)
     
-#     sol = lorenz.integration_Lorenz_system(lorenz.lorenz,NUM_STEPS, t, IC, set_)
+#     if np.any(np.isnan(set_)) == True or np.any(np.isinf(set_)) == True:
     
-#     zeros = np.zeros((10,3,N+1))
+#         with pytest.warns():
     
-#     assert np.all(np.isclose(sol[NUM_STEPS-10:NUM_STEPS,:,:],zeros,rtol=1E-1) == True)
+#             lorenz.integration_Lorenz_system(lorenz.lorenz,NUM_STEPS, t, IC, set_)
     
-    
-#     # assert np.all(sol[:,0,:] == dt * (sigma * (sol[:,1,:] - sol[:,0,:])))
-#     # assert np.all(y_dot == r * state[0] - state[0] * state[2] - state[1])
-#     # assert np.all(z_dot == state[0] * state[1] - b * state[2])
+   
     
  
 #------------------------------------RMSE-------------------------------------#   
@@ -342,11 +446,8 @@ IC_0 = np.array([9, 10, 20])
     
 #     assert np.all(numbers <= 0.75) 
     
-#     numbers = numbers/1.50 + 0.50
-    
-#     assert np.all(numbers <= 1.)
-    
-#     stats, p_value = ss.kstest(numbers, ss.uniform.cdf, N=N1)
+#     stats, p_value = ss.kstest(numbers, ss.uniform(loc = -0.75, 
+#                                                    scale = 1.5).cdf, N=N1)
     
 #     assert p_value > 0.05
  
@@ -561,86 +662,190 @@ IC_0 = np.array([9, 10, 20])
         
 #         assert np.all(error1 == 0.) or np.all(error >= threshold)
     
+
+#-----------------------------------FITTING-----------------------------------#    
+
+    
+# @given(x = exnp.arrays(np.dtype(float), N,
+#         elements = st.floats(allow_nan=True, allow_infinity=False)), 
+#        b = st.floats(allow_nan=True, allow_infinity=False))
+# @settings(max_examples = 10) 
+# def test_func_with_known_values(x,b):
+#     """ This function tests that given an angular coefficient equal to zero, 
+#     the linear equation should return y = b for every value of x. Moreover,
+#     it also tests that given b = 0 and a = 1, y should be equal to x.
     
     
-    
-@given(x = exnp.arrays(np.dtype(float), N,
-        elements = st.floats(allow_nan=True, allow_infinity=False)), 
-       b = st.floats(allow_nan=True, allow_infinity=False))
-@settings(max_examples = 10) 
-def test_func_with_known_values(x,b):
-    """ This function tests that given an angular coefficient equal to zero, 
-    the linear equation should return y = b for every value of x. Moreover,
-    it also tests that given b = 0 and a = 1, y should be equal to x.
-    
-    
-        GIVEN: arbitrary values of x 
+#         GIVEN: arbitrary values of x 
         
-            WHEN: a = 0 and b an arbitrary value
-            THEN: I expect y to be equal to b for every value of x.
+#             WHEN: a = 0 and b an arbitrary value
+#             THEN: I expect y to be equal to b for every value of x.
         
-            WHEN: a = 1 and b = 0
-            THEN: I expect y to be equal to x.
+#             WHEN: a = 1 and b = 0
+#             THEN: I expect y to be equal to x.
     
-    """
-    assert np.all(lorenz.func(x,0,b) == b), ("The func function is not "
-    "working properly")
+#     """
+#     assert np.all(lorenz.func(x,0,b) == np.ones(N)*b), ("The func function is not "
+#     "working properly")
     
-    assert np.all(lorenz.func(x,1,0) == x), ("The func function is not "
-    "working properly")
+#     assert np.all(lorenz.func(x,1,0) == x), ("The func function is not "
+#     "working properly")
     
     
+# @given(b = st.floats())
+# @settings(max_examples = 10)     
+# def test_func_with_infinite(b):
+#     """ This function tests that if x is infinite and a is equal to zero, or 
+#     viceversa, a RuntimeWarning is raised.
     
-@given(x = exnp.arrays(np.dtype(float), N,
-        elements = st.floats()), a = st.floats(), b = st.floats())
-@settings(max_examples = 10) 
-def test_func_with_infinite(x, b, a):
-    """ This function tests that if one or more among x, a and b is equal to 
-    infinity, a RuntimeWarning is raised.
+#         GIVEN: x = infinity and a = 0 or viceversa
+#         WHEN: I aply the func function
+#         THEN: I expect to raise a RuntimeWarning
     
-        GIVEN: one or more among x, a and b equal to infinity
-        WHEN: I ally the func function
-        THEN: I expect to raise a RuntimeWarning
+#     """
     
-    """
-    
-    if np.isinf(b) == True or np.isinf(a) == True or np.isinf(np.any(x)) == True:
+#     a, x = 0., np.ones(N)*np.inf
         
-        with pytest.raises(RuntimeWarning):
+#     with pytest.warns(RuntimeWarning):
             
-            lorenz.func(x,a,b)
-            
-            
-            
+#         lorenz.func(x,a,b)
         
+#     a, x = float('inf'), np.zeros(N)
+           
+#     with pytest.warns(RuntimeWarning):
+            
+#         lorenz.func(x,a,b)
+            
+# @given(c = st.lists(elements = st.floats(min_value = 1E-7,max_value= 1.1,
+#     allow_nan=False),min_size = N, max_size = N, unique=True), 
+#     best_guess_1 = st.floats(allow_nan=False, min_value = -5000, max_value = 5000),
+#     best_guess_2 = st.floats(allow_nan=False,min_value = -5000, max_value = 5000))
+# @settings(max_examples = 10)
+# def test_fit_uncertainty(c,best_guess_1,best_guess_2):
+
+#     c = np.array(c)
+   
+#     x = np.sort(c) 
+#     y = np.log10(x) * best_guess_1  + best_guess_2
+   
+#     fit, popt, p_low, p_top, fit_ = lorenz.fitting(lorenz.func,x,y,best_guess_1+1,
+#                                                   best_guess_2+1)      
         
+#     if best_guess_1 != 0. :
+
+#         for i in range(N):
+       
+#             l = []
+       
+#             for j in range(50):
+   
+#                 l.append(fit_[j][i])
+           
+#                 assert np.where(l <= p_low[i])[0].shape[0] <= 4
+   
+#                 assert np.where(l <= p_top[i])[0].shape[0] <= 49
     
     
     
+# @given(c = st.lists(elements = st.floats(min_value = 1E-7,max_value= 1.1,
+#     allow_nan=False,allow_infinity=False),
+#     min_size = N, max_size = N, unique=True), a =st.floats(min_value = 1.1,
+#     max_value= 1E7, allow_nan=False,allow_infinity=False), 
+#     b = st.floats(min_value = 1E-7,max_value= 1.1,
+#     allow_nan=False,allow_infinity=False) )
+# @settings(max_examples = 10)        
+# def test_fitting_linearity_is_exact(c,a,b):
     
-# # @given(c = exnp.arrays(np.dtype(float), N,
-# #          elements = st.floats(min_value = 1E-10,max_value= 1.1,allow_nan=False,
-# #          allow_infinity=False)))
-# @given(c = st.lists(elements = st.floats(min_value = 1E-10,max_value= 1.1,
-#                      allow_nan=False,allow_infinity=False),
-#                      min_size = 5, max_size = N, unique=True))
-# @settings(max_examples = 100)    
-# def test_fitting_is_working(c):
-#     """ This function tests that given y equal to log(x) the fitting function
-#     should return an angular coefficient m equal to one.
+#     """ This function tests that, given some data that follow a linear 
+#     equation y = a * x + b  with a and b known, the fitting function find
+#     exactly a and b as parameters with zero uncertainty.
     
-#     GIVEN: the fitting function
-#     WHEN: y = log(x) (base 10)
-#     THEN: m =1
+#         GIVEN: some data that follow a linear equation y = a * x + b  with a 
+#         and b known
+#         WHEN: I call the fitting function with these parameters
+#         THEN: I find exactly a and b as parameters of the linear equation and
+#         the uncertainty associated with the fit is zero, i.e. p_low = p_top.
+    
 #     """
 #     c = np.array(c)
 #     x = np.sort(c)
         
-#     y = np.log10(x)
-#     angular_coeff = fitting(func,x,y,1.,0.)[1][0]
-   
-#     assert math.isclose(angular_coeff, 1.,rel_tol = 1E-7) == True  
+#     y = np.log10(x) * a + b
+    
+#     angular_coeff, q = lorenz.fitting(lorenz.func,x,y,a,b)[1]
+    
+#     p_low, p_top = lorenz.fitting(lorenz.func,x,y,a,b)[2:4]
+    
+#     assert np.isclose(angular_coeff, a,rtol = 1E-7) == True
+    
+#     assert np.isclose(q, b,rtol = 1E-7) == True
+    
+#     assert np.all(np.isclose(p_low, p_top, rtol = 1E-7)) == True
     
     
+# @given(x= exnp.arrays(np.dtype(float), N,elements = st.floats()), a =st.floats(),
+# b = st.floats(), y= exnp.arrays(np.dtype(float), N,elements = st.floats()))
+# @settings(max_examples = 10)  
+# def test_fitting_raise_correct_exception(x, a, b, y):
+    
+#     """ This function tests that the fitting function raises a ValueError when 
+#     one of its arguments is a NaN or infinite.
+    
+#         GIVEN: one of the arguments of the fitting function equal to NaN or 
+#         infinity
+#         WHEN: I call the fitting function with these parameters
+#         THEN: I expect to raise a ValueError.
+#     """
+    
+#     if np.any(np.isnan(x))== True or np.any(np.isinf(x))== True: 
+        
+#         with pytest.raises(ValueError):
+        
+#             lorenz.fitting(lorenz.func,x,y,a,b)
+            
+#     elif np.any(np.isnan(y))== True or np.any(np.isinf(y))== True: 
+        
+#         with pytest.raises(ValueError):
+        
+#             lorenz.fitting(lorenz.func,x,y,a,b)
+            
+#     elif np.isnan(b)== True or np.isinf(b) == True: 
+        
+#         with pytest.raises(ValueError):
+        
+#             lorenz.fitting(lorenz.func,x,y,a,b)
+            
+#     elif np.isnan(a)== True or np.isinf(a)== True: 
+        
+#         with pytest.raises(ValueError):
+        
+#             lorenz.fitting(lorenz.func,x,y,a,b)
+            
+# @given(x = st.lists(elements = st.floats(min_value = 1E-7,max_value= 1.1,
+#     allow_nan=False,allow_infinity=False)), a =st.floats(min_value = 1.1,
+#     max_value= 1E7, allow_nan=False,allow_infinity=False), 
+#     b = st.floats(min_value = 1E-7,max_value= 1.1,
+#     allow_nan=False,allow_infinity=False))
+# @settings(max_examples = 10)
+# def test_logarithm_in_fitting_function(x, a, b):
+    
+#     """ This function tests that given a value of x less than or equal to zero, 
+#     when callig the fitting function a RuntimeWarning is raised due to the 
+#     presence of the logarithm of x.
+    
+#         GIVEN: x such that at least one of its values is negative or equal to 0
+#         WHEN: I call the fitting function
+#         THEN: I expect to receive a RuntimeWarning.
+#     """
+    
+#     x = np.array(x)
+    
+#     y = x + 1 
+    
+#     if np.any(x <= 0.) == True:
+    
+#         with pytest.warns(RuntimeWarning):
+            
+#             lorenz.fitting(lorenz.func,x,y,a,b)
     
     

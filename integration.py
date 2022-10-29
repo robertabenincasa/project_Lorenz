@@ -100,9 +100,9 @@ rmse = lorenz.RMSE(sol_chaotic)
 
 pred_time = lorenz.prediction(rmse, dt, alpha)
 
-fit, popt, p_low, p_top = lorenz.fitting(lorenz.func,eps,pred_time, -1.1, 10)
+fit, popt, p_low, p_top = lorenz.fitting(lorenz.func,eps,pred_time, -1.1, 10)[0:4]
 fit1, popt1, p_low1, p_top1 = lorenz.fitting(lorenz.func,eps[0:4],
-                                             pred_time[0:4], -1.1, 10)
+                                             pred_time[0:4], -1.1, 10)[0:4]
 
 
 #------------------------------ENSEMBLE INTEGRATION---------------------------#

@@ -164,6 +164,15 @@ def perturbation(
     
     """
     
+    if np.any(np.isnan(eps)) == True or np.any(np.isinf(eps)) == True:
+        
+        raise ValueError('Invalid perturbation')
+        
+    if np.any(np.isnan(init_cond)) == True or np.any(np.isinf(init_cond)) == True:
+        
+        raise ValueError('Invalid initial condition')
+        
+    
     IC = np.ones((eps.shape[0]+1,3))
     
     IC = IC * init_cond
@@ -614,7 +623,7 @@ def fitting(func: Callable,
     
     p_low, p_top = mquantiles(fit_, prob=[0.025, 0.975], axis=0)
     
-    return fit, popt, p_low, p_top
+    return fit, popt, p_low, p_top, fit_
     
 
 
