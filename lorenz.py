@@ -50,21 +50,21 @@ def reading_configuration_file(default_file: str,
         raise NameError('Invalid default configuration file - This file does '+
                         'not exist')
     
-    while True:
+    
         
-        print('\n'+'Enter the name of the configuration file of your choice and press' +
+    print('\n'+'Enter the name of the configuration file of your choice and press' +
           ' ENTER.'+' If none is given, the default one will be used: '+
               str(default_file))
     
-        configuration_file = str(input("Name of the file: ") or default_file)
+    configuration_file = str(input("Name of the file: ") or default_file)
     
-        if path.exists(configuration_file) == True:
+    if path.exists(configuration_file) == True:
         
-            return configuration_file
+        return configuration_file
     
-        else:
+    else:
             
-            raise NameError('\n'+'--------------------->FILE '+ configuration_file +
+        raise NameError('\n'+'--------------------->FILE '+ configuration_file +
                   ' DOES NOT EXIST. PLEASE TRY AGAIN<--------------------')
         
 
@@ -490,7 +490,7 @@ def prediction(
     """
     if rmse.ndim == 1:
         
-        if np.all(rmse < threshold):
+        if np.all(rmse < threshold) or np.all(rmse >= threshold):
         
             pred_time = 0.
             
@@ -512,7 +512,7 @@ def prediction(
     
         for i in range(num_of_perturbations):
             
-            if np.all(rmse[:,i] < threshold):
+            if np.all(rmse[:,i] < threshold) or np.all(rmse[:,i] >= threshold):
             
                 pred_time1[i] = 0.
             
