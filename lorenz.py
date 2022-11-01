@@ -490,12 +490,12 @@ def prediction(
     """
     if rmse.ndim == 1:
         
-        if np.all(rmse < threshold) or np.all(rmse >= threshold):
+        if np.all(rmse < threshold) or np.all(rmse > threshold):
         
             pred_time = 0.
             
-            print('the RMSE is always smaller than 0.5 for the entire time ' +
-            'window')
+           # print('the RMSE is always smaller than 0.5 for the entire time ' +
+           # 'window')
         
         else:
             
@@ -512,13 +512,13 @@ def prediction(
     
         for i in range(num_of_perturbations):
             
-            if np.all(rmse[:,i] < threshold) or np.all(rmse[:,i] >= threshold):
+            if np.all(rmse[:,i] < threshold) or np.all(rmse[:,i] > threshold):
             
                 pred_time1[i] = 0.
             
-                print('for perturbation number', i, 
-                      'the RMSE is always smaller than 0.5 for the entire time ' +
-                      'window')
+                #print('for perturbation number', i, 
+                #      'the RMSE is always smaller than 0.5 for the entire time ' +
+                #      'window')
             
             else:
             
@@ -617,15 +617,13 @@ def fitting(func: Callable,
     
     fit = func(np.log10(x),*popt)
     
-    p_seq = st.multivariate_normal.rvs(mean=popt, cov=pcov, size=50)
+    p_seq = st.multivariate_normal.rvs(mean=popt, cov=pcov, size=100)
     
     fit_ = [func(np.log10(x),*params) for params in p_seq]
     
     p_low, p_top = mquantiles(fit_, prob=[0.025, 0.975], axis=0)
     
-    return fit, popt, p_low, p_top, fit_
-    
-
+    return fit, popt, p_low, p_top
 
 
 
