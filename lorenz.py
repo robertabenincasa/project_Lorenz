@@ -490,16 +490,16 @@ def prediction(
     """
     if rmse.ndim == 1:
         
-        if np.all(rmse < threshold) or np.all(rmse > threshold):
+        if np.all(rmse < threshold) or np.all(rmse >= threshold):
         
             pred_time = 0.
             
-           # print('the RMSE is always smaller than 0.5 for the entire time ' +
-           # 'window')
+            print('the RMSE is always smaller than 0.5 for the entire time ' +
+            'window')
         
         else:
             
-            pred_time = np.where(rmse > threshold)[0][0]*dt
+            pred_time = np.where(rmse >= threshold)[0][0]*dt
         
             
         return pred_time
@@ -512,17 +512,17 @@ def prediction(
     
         for i in range(num_of_perturbations):
             
-            if np.all(rmse[:,i] < threshold) or np.all(rmse[:,i] > threshold):
+            if np.all(rmse[:,i] < threshold) or np.all(rmse[:,i] >= threshold):
             
                 pred_time1[i] = 0.
             
-                #print('for perturbation number', i, 
-                #      'the RMSE is always smaller than 0.5 for the entire time ' +
-                #      'window')
+                print('for perturbation number', i, 
+                      'the RMSE is always smaller than 0.5 for the entire time ' +
+                      'window')
             
             else:
             
-                pred_time1[i] = np.where(rmse[:,i] > threshold)[0][0]*dt
+                pred_time1[i] = np.where(rmse[:,i] >= threshold)[0][0]*dt
             
             
             

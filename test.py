@@ -645,7 +645,7 @@ def test_generation_random_numbers(seed):
         sol2 = exnp.arrays(np.dtype(float),(NUM_STEPS,3),
         elements = st.floats(min_value = -50, max_value= 50,allow_nan=False)), 
         rmse = exnp.arrays(np.dtype(float),(NUM_STEPS,N),
-        elements = st.floats(min_value = -50, max_value= 50,allow_nan=False)) )
+        elements = st.floats(min_value = 1E-10, max_value= 50,allow_nan=False)) )
 @settings(max_examples = 10) 
 def test_L_is_symmetric(sol1,sol2, rmse):
     """ This function test that the function calculating_L_and_R is 
@@ -725,7 +725,7 @@ def test_ensemble_of_single_member(sol):
     
     
 @given(sol = exnp.arrays(np.dtype(float),(NUM_STEPS,3,1),
-        elements = st.floats(min_value = -50,max_value= 50,allow_nan=False, 
+        elements = st.floats(min_value = 1E-10,max_value= 50,allow_nan=False, 
         allow_infinity=False)))
 @settings(max_examples = 10, deadline=None)           
 def test_ensemble_of_equal_members(sol):
@@ -744,7 +744,7 @@ def test_ensemble_of_equal_members(sol):
     
     spread, mean = lorenz.ensemble(ens_sol_equal)
     
-    assert np.array_equal(mean, sol[:,:,0], equal_nan=False) is True
+    assert np.allclose(mean, sol[:,:,0], rtol = 1E-5, atol =1E-7) is True
     
     assert np.all(abs(spread) == 0.)
     
@@ -827,38 +827,41 @@ def test_pred_time_with_rmse_equal_to_1(threshold):
     
 @given(threshold=st.floats(min_value = 0.,max_value= 1., exclude_min=True),
         error = exnp.arrays(np.dtype(float),(NUM_STEPS,N),
-        elements = st.floats(min_value = 0.,max_value= 50)),
+        elements = st.floats(min_value = 0.,max_value= 2.)),
         error1 = exnp.arrays(np.dtype(float),(NUM_STEPS),
-        elements = st.floats(min_value = 0.,max_value= 50)))
+        elements = st.floats(min_value = 0.,max_value= 2.)))
 @settings(max_examples = 10) 
+@example(threshold = 0.5, error = np.ones((NUM_STEPS,N)), error1 = np.ones(N))
 def test_prediction_is_correct(error, error1, threshold):
     
     """This function tests that the predictability time found by the function 
-    prediction is correct. In particular, it checks that the rmse after that 
-    time step is greater than the threshold. In the case that the predictability
-    time is identically equal to zero, it checks if the rmse is always equal to 
-    zero too or if it is always greater than the threshold.
+    prediction is correct. In particular, it checks that the rmse before that 
+    time step is smaller than the threshold. Moreover, it verifies that the 
+    predictability time is equal to zero when the rmse is identically equal to 
+    zero or always smaller or greater than the threshold.
     
         GIVEN: the rmse and a certain threshold
         WHEN: I apply the prediction function to find the predictability time
-        THEN: I expect to find that the rmse is always greater than the threshold
-        after that time step. If the predictability time is equal to zero, I
-        verify that the rmse is greater than the threshold at every 
-        time step or it is identically equal to zero.
+        THEN: I expect to find that the rmse is always smaller than the threshold
+        before that time step. I verify that the predictability time 
+        is equal to zero when the rmse is identically equal to 
+        zero or always smaller or greater than the threshold.
         
     """
+    error[-10:,:] = 1.1
+    error1[-10:] = 1.1
     
     time = lorenz.prediction(error, dt, threshold)
     
-    if np.all(time != 0.):
+    if np.any(time != 0.):
     
         for i in range(N):
         
-            assert np.all(error[int(time[i]/dt):,i] > threshold)
+            if time[i] != 0.:
             
-            assert time[i] == np.where(error[i] > threshold)[0][0]*dt            
-    
-        
+                assert np.all(error[:int(time[i]/dt),i] <= threshold)
+            
+                         
     if np.all(error < threshold):
             
         assert np.all(time == 0.)
@@ -880,9 +883,9 @@ def test_prediction_is_correct(error, error1, threshold):
     
     if time1 != 0. :
         
-        assert np.all(error1[int(time1/dt):] > threshold)
+        assert np.all(error1[:int(time1/dt)] <= threshold)
         
-        assert time1 == np.where(error1 > threshold)[0][0]*dt
+        
         
     if np.all(error1 < threshold):
             
@@ -890,15 +893,15 @@ def test_prediction_is_correct(error, error1, threshold):
             
     elif np.all(error1 > threshold):
             
-        assert time == 0.
+        assert time1 == 0.
             
     elif np.all(error1 == threshold):
         
-        assert time == 0.
+        assert time1 == 0.
         
     elif np.all(error1 == 0.):
         
-        assert time == 0.
+        assert time1 == 0.
     
     
         
