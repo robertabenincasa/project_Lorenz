@@ -34,7 +34,7 @@ The libraries and modules needed to run the program and produce the desired plot
 * *numpy*;
 * *scipy.stats*;
 * *scipy.integrate.odeint*;
-* * *scipy.optimize.curve_fit*;
+* *scipy.optimize.curve_fit*;
 * *pandas*;
 * *os.path*;
 * *typing*;
@@ -43,6 +43,7 @@ The libraries and modules needed to run the program and produce the desired plot
 * *dataframe_image*
 * *tabulate*
 * *Pillow* or an equivalent library.
+
 For testing the following are requested instead:
 * *pytest*;
 * *hypothesis*;
