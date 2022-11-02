@@ -25,6 +25,10 @@ $$
 
 For more information about the Lorenz system, see *Atmospheric modeling, data assimilation and predictability*, E. Kalney, 2003.
 
+## How to use
+
+In order to use the present program, the user needs to run the script [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py) to obtain the numerical results of the analysis and the script [visualization](https://github.com/robertabenincasa/project_Lorenz/blob/master/visualization.py) to produce the graphical representation of the same data. All the results are saved in the folders [/output/data](https://github.com/robertabenincasa/project_Lorenz/blob/master/output/data) and [/output/plots]
+(https://github.com/robertabenincasa/project_Lorenz/blob/master/output/data). Moreover, a default configuration file, namely [config.ini](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.ini), is available, but the user is allowed to use the file of their choice. However, it is requested that the new configuration file has the same sections and parameters of the default one. Since the script [config.py](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.py) generates the configuration file with the desired structure, if one wants to generate a different file they could just change the values of the parameters and the name of the output file in this script without modifying the overall layout of the configuration. If further modifications are needed, one has to change also the main code.
 
 ## Canonical system
 
