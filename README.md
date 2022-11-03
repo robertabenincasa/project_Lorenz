@@ -44,16 +44,56 @@ The libraries and modules needed to run the program and produce the desired plot
 * *tabulate*
 * *Pillow* or an equivalent library.
 
-For testing the following are requested instead:
+For testing, the following are requested instead:
 * *pytest*;
 * *hypothesis*;
 * *unittest*.
 
+## The structure of the program
+
+Five different scripts have been realised in order to perform all the tasks: [config](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.py), [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py), [visualization](https://github.com/robertabenincasa/project_Lorenz/blob/master/visualization.py), [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py) and [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/plots.py).
+As previously said, the file [config](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.py) produces the configuration file to be used in the main code. The parameters whose value is defined in it are:
+* *num_steps*: number of steps for the time integration of the Lorenz system;
+* *dt*: width of the time step for the integration;
+* *N*: number of ensemble members;
+* *Random seed*: the random seed for the generation of an ensemble of random perturbation is fixed in the configuration file;
+* *IC*: initial condition for the integration;
+* *sigma*, *b*, *r1*, *r2*: the parameters of the Lorenz system, where *r* is set equal to 2 possible values, namely *r1* and *r2*, which corresponds to a chaotic  and a non-chaotic solution, respectively.
+* *which_variable*: it indicates which variable among x, y and z of the initial condition *IC* is chosen to be perturbed;
+* *eps*: vector of the applied perturbations to the initial condition;
+* *threshold*: threshold to be used in the analysis to determine the predictability time of the system, i.e. when the RMSE becomes greater than this value.
+* *which_eps_for_difference*,*which_eps_for_animation*: they are used in the plotting process in order to select which solution one wants to visualize.
+
+The following paths are also specified there:
+* *path_data*: location where the data from the numerical analysis are supposed to be stored;
+* *path_plots*: location where the produced plots are saved.
+
+The main code is [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py) in which the integration of the Lorenz system is performed for two different set of parameters in order to obtain a chaotic and a non-chaotic solution, respectively:
+* set A: $\sigma$, *b*, *r1* = (10, 8/3, 28)
+* set B: $\sigma$, *b*, *r2* = (10, 8/3, 9)
+
+In order to further investigate the behaviour of the system, a perturbation on the initial condition is introduced and an analysis of the predictability of the system can be carried out. Assuming the unperturbed solution to be the *true* one, it is possible to compute the difference between the unperturbed and the perturbed one and to define the *Root Mean Square Error* as:
+
+$$
+\begin{equation}
+RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{per})^{2}}
+\end{equation}
+$$
+
+Moreover, in a chaotic system, the distance between the two trajectories $\delta$(t) grows as $\delta(t)\sim\delta_{0}\exp{\lambda t}$, where $\lambda$ is the maximum Lyapunov exponent (approximately 0.9 for the Lorenz system), so the predictability time $t\sim\frac{1}{\lambda}ln(\frac{a}{\delta_{0}})$ is supposed to decrease with increasing initial distance following a logarithmic relation. The predictability time is here arbitrarly defined as the time at which the RMSE became greater than a certain threshold, defiend in the configuration file, and is related to the sensitiveness to the initial condition typical of chaotic systems.
+
+Finally, in order to show how the predictability of such a chaotic system can be improved, ensemble forecasting is considered. An ensemble of *N* random generated perturbations is applied as before and the Lorenz system is integrated for each IC. Then, the RMSE of the ensemble mean (*L*) and the mean RMSE (*R*) are computed as a function of time:
+
+$$
+\begin{align}
+L = \sqrt{\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{ave})^{2}}   &&    R = \frac{1}{N}\sum_{j=1}^{N}(\sqrt{\sum_{i=1}^{3}(x_{i}^{true}-x_{i,j}^{per})^{2}})
+\end{align}
+$$
 
 
 ## Canonical system
 
-First, the numerical integration of the Lorenz system is performed, with initial condition L<sub>0</sub> = (x<sub>0</sub>, y<sub>0</sub>, z<sub>0</sub>). Two different set of parameters were adopted in order to obtain a chaotic and a non-chaotic solution, respectively:
+First, the numerical integration of the Lorenz system is performed, with initial condition L<sub>0</sub> = (x<sub>0</sub>, y<sub>0</sub>, z<sub>0</sub>). two different set of parameters were adopted in order to obtain a chaotic and a non-chaotic solution, respectively:
 * set A: $\sigma$, *b*, *r* = (10, 8/3, 28)
 * set B: $\sigma$, *b*, *r* = (10, 8/3, 9)
 
@@ -82,6 +122,8 @@ L = \sqrt{\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{ave})^{2}}   &&    R = \frac{1}{N}\
 $$
 
 Consequently, it is possible to show that the RMSE of the ensemble mean is clearly smaller than the mean RMSE or the RMSE of any simulation. To be consistent, the corresponding predictability times for *L* and *R* are computed in order to show how the predictability time window is expanded. 
+
+
 ## The code
 Four different scripts are used in order to perform all the tasks previously described.
 First of all, the [configuration](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.py) file must be compiled by the user in order to set the values of the integration parameters and to specify the local path to the repository where the output of the code is supposed to be saved. By running the configuration file, the [*config.ini*](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.ini) is produced which it is then imported by the main code with the ConfigParser library. 
