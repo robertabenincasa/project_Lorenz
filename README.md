@@ -28,6 +28,7 @@ For more information about the Lorenz system, see *Atmospheric modeling, data as
 ## How to use
 
 In order to use the present program, the user needs to run the script [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py) to obtain the numerical results of the analysis and the script [visualization](https://github.com/robertabenincasa/project_Lorenz/blob/master/visualization.py) to produce the graphical representation of the same data. All the results are saved in the folders [/output/data](https://github.com/robertabenincasa/project_Lorenz/blob/master/output/data) and [/output/plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/output/plots). Moreover, a default configuration file, namely [config.ini](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.ini), is available, but the user is allowed to use the file of their choice. However, it is requested that the new configuration file has the same sections and parameters of the default one. Since the script [config.py](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.py) generates the configuration file with the desired structure, if one wants to generate a different file they could just change the values of the parameters and the name of the output file in this script without modifying the overall layout of the configuration. If further modifications are needed, one has to change also the main code.
+Finally, in order to proceed with the testing, the user needs to run the file [test](https://github.com/robertabenincasa/project_Lorenz/blob/master/test.py) with *pytest test.py*.
 
 The **libraries** and **modules** needed to run the program and produce the desired plots are:
 * *configparser*: necessary to create and then read the configuration file;
@@ -51,7 +52,7 @@ For testing, the following are requested instead:
 
 ## The structure of the program
 
-Five different scripts have been realised in order to perform all the tasks: [config](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.py), [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py), [visualization](https://github.com/robertabenincasa/project_Lorenz/blob/master/visualization.py), [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py) and [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/plots.py).
+Six different scripts have been implemented in order to perform all the tasks: [config](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.py), [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py), [visualization](https://github.com/robertabenincasa/project_Lorenz/blob/master/visualization.py), [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py) and [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/plots.py).
 
 ### config.py
 
@@ -71,6 +72,8 @@ The following paths are also specified there:
 * *path_data*: location where the data from the numerical analysis are supposed to be stored;
 * *path_plots*: location where the produced plots are saved.
 
+### integration.py
+
 The main code is [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py) in which the integration of the Lorenz system is performed for two different set of parameters in order to obtain a chaotic and a non-chaotic solution, respectively:
 * set A: $\sigma$, *b*, *r1* = (10, 8/3, 28)
 * set B: $\sigma$, *b*, *r2* = (10, 8/3, 9)
@@ -79,77 +82,35 @@ In order to further investigate the behaviour of the system, a perturbation on t
 
 $$
 \begin{equation}
-RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{per})^{2}}
+RMSE = \sqrt{\frac{1}{3}\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{per})^{2}}
 \end{equation}
 $$
 
-Moreover, in a chaotic system, the distance between the two trajectories $\delta$(t) grows as $\delta(t)\sim\delta_{0}\exp{\lambda t}$, where $\lambda$ is the maximum Lyapunov exponent (approximately 0.9 for the Lorenz system), so the predictability time $t\sim\frac{1}{\lambda}ln(\frac{a}{\delta_{0}})$ is supposed to decrease with increasing initial distance following a logarithmic relation. The predictability time is here arbitrarly defined as the time at which the RMSE became greater than a certain threshold, defiend in the configuration file, and is related to the sensitiveness to the initial condition typical of chaotic systems.
+Note that the analysis, starting from the computation of the RMSE, is performed only on the chaotic solution, since it would have been uninformative for set B of parameters.
+Moreover, in a chaotic system, the distance between the two trajectories $\delta$(t) grows as $\delta(t)\sim\delta_{0}\exp{\lambda t}$, where $\lambda$ is the maximum Lyapunov exponent (approximately 0.9 for the Lorenz system), so the predictability time $t\sim\frac{1}{\lambda}ln(\frac{a}{\delta_{0}})$ is supposed to decrease with increasing initial distance following a logarithmic relation. The predictability time is here arbitrarly calculated as the time at which the RMSE became greater than a certain threshold, defined in the configuration file, and is related to the sensitiveness to the initial condition typical of chaotic systems. For the sake of completeness, a linear fit of the predictability time as a function of the logarithm of the perturbation is performed in order to check what expected from the theory. However, since this relation is supposed to be valid for infinitesimal perturbations, 2 fits are performed and compared: one for perturnations up to $10_{-7}$ and the other for greater values of $\epsilon$. 
 
-Finally, in order to show how the predictability of such a chaotic system can be improved, ensemble forecasting is considered. An ensemble of *N* random generated perturbations is applied as before and the Lorenz system is integrated for each IC. Then, the RMSE of the ensemble mean (*L*) and the mean RMSE (*R*) are computed as a function of time:
-
-$$
-\begin{align}
-L = \sqrt{\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{ave})^{2}}   &&    R = \frac{1}{N}\sum_{j=1}^{N}(\sqrt{\sum_{i=1}^{3}(x_{i}^{true}-x_{i,j}^{per})^{2}})
-\end{align}
-$$
-
-
-## Canonical system
-
-First, the numerical integration of the Lorenz system is performed, with initial condition L<sub>0</sub> = (x<sub>0</sub>, y<sub>0</sub>, z<sub>0</sub>). two different set of parameters were adopted in order to obtain a chaotic and a non-chaotic solution, respectively:
-* set A: $\sigma$, *b*, *r* = (10, 8/3, 28)
-* set B: $\sigma$, *b*, *r* = (10, 8/3, 9)
-
-The 2 systems show completely different behaviours. As expected, for set B of parameters, the solution converges to a single point attractor, whereas for set A of parameters, the system exhibits chaotic behaviour, i.e. of a strange attractor. Any two arbitrarily close alternative initial points on the attractor, after any of various numbers of iterations, will lead to points that are arbitrarily far apart, but still subject to the confines of the attractor, and after any of various other numbers of iterations will lead to points that are arbitrarily close together. Thus, a dynamic system with a chaotic attractor is locally unstable yet globally stable: once in the attractor, nearby points diverge from one another but never depart from the attractor. 
-Moreover, it is immediate to show the dissipative nature of the system in the second case, since it converges to a single point. Instead, in the former scenario this condition is satisfied because a strange attractor has a fractal structure, which has zero volume in phase space.
-
-## Single perturbation of the initial condition
-
-By introducing a perturbation on the initial condition of the type E = ( $\epsilon$ ,0,0), the behaviour of the system can be further investigated. Assuming the unperturbed solution to be the *true* one, it is possible to compute the difference between the unperturbed and the perturbed one and to define the *Root Mean Square Error* as:
-
-$$
-\begin{equation}
-RMSE = \sqrt{\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{per})^{2}}
-\end{equation}
-$$
-
-For set B, the 2 trajectories relaxes to a single one after a brief oscillating transient and their difference tends to zero accordingly. Instead, for set A of parameters, the 2 trajectories suddenly distance each other after a transient in which they coincide and start oscillating independently in a chaotic manner and so does their difference. The RMSE increases in an exponential manner and saturates at the size a of the attractor. That means that the RMSE, i.e. the distance between the 2 trajectories, cannot be greater than the dimension of the attractor itself, since they are confined to it. Moreover, in a chaotic system, the distance between the two trajectories $\delta$(t) grows as $\delta(t)\sim\delta_{0}\exp{\lambda t}$, where $\lambda$ is the maximum Lyapunov exponent (approximately 0.9 for the Lorenz system), so the predictability time $t\sim\frac{1}{\lambda}ln(\frac{a}{\delta_{0}})$ is supposed to decrease with increasing initial distance following a logarithmic relation. The predictability time is here arbitrarly defined as the time at which the RMSE became greater than 0.5 and is related to the sensitiveness to initial conditions typical of chaotic systems.
-
-## Ensemble of perturbations
-Finally, in order to show how the predictability of such a chaotic system can be improved, ensemble forecasting is considered. An ensemble of *N* random generated perturbations is applied as before and the Lorenz system is integrated for each IC. Then, the RMSE of the ensemble mean (*L*) and the mean RMSE (*R*) are computed as a function of time:
+Finally, in order to show how the predictability of such a chaotic system can be improved, ensemble forecasting is considered. An ensemble of *N* random generated perturbations is applied as before and the Lorenz system is integrated for each IC. The ensemble mean and the ensemble spread are computed for each variable. Then, the RMSE of the ensemble mean (*L*) and the mean RMSE (*R*) are computed as a function of time:
 
 $$
 \begin{align}
-L = \sqrt{\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{ave})^{2}}   &&    R = \frac{1}{N}\sum_{j=1}^{N}(\sqrt{\sum_{i=1}^{3}(x_{i}^{true}-x_{i,j}^{per})^{2}})
+L = \sqrt{\frac{1}{3}\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{ave})^{2}}   &&    R = \frac{1}{N}\sum_{j=1}^{N}(\sqrt{\frac{1}{3}\sum_{i=1}^{3}(x_{i}^{true}-x_{i,j}^{per})^{2}})
 \end{align}
 $$
 
-Consequently, it is possible to show that the RMSE of the ensemble mean is clearly smaller than the mean RMSE or the RMSE of any simulation. To be consistent, the corresponding predictability times for *L* and *R* are computed in order to show how the predictability time window is expanded. 
+and the associated predictability times are calculated. 
+Ultimately, all the numerical results are saved to files and stored in the folder [/output/data](https://github.com/robertabenincasa/project_Lorenz/blob/master/output/data).
 
-
-## The code
-Four different scripts are used in order to perform all the tasks previously described.
-First of all, the [configuration](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.py) file must be compiled by the user in order to set the values of the integration parameters and to specify the local path to the repository where the output of the code is supposed to be saved. By running the configuration file, the [*config.ini*](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.ini) is produced which it is then imported by the main code with the ConfigParser library. 
-
-The parameters used in the simulation are:
-* *num_steps*: the number of steps for the integration;
-* *dt*: the step size;
-* *N*: number of random perturbations;
-* *b*,  $\sigma$, *r1*, *r2*: the values of the parameters of the Lorenz system as defined above;
-* *IC*: the initial condition of the system;
-* *eps*: the values of the perturbations applied to the system.
-
-Their values can be modified by the users according to their needs, while keeping in mind the analytical description of the system provided before. 
-
-In order to obtain the entire output, it is necessary to run only the [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py) script, which is also the main code of the project. The time integration of the Lorenz system is performed through the [scipy.integrate.odeint](https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.odeint.html) library. Note that the integration is performed for each set of parameters and for each initial conditions. The latter are obtained by perturbing the x-component of the original initial condition *IC* through the perturbations defined in the array *eps*. Then, the difference between the x-component of the unperturbed trajectory and one of the perturbed are computed for both set of parameters, as a preliminary analysis. Subsequently, the Root Mean Square Error is computed for each value of the perturbation only for the chaotic solution, since it would have been uninformative for set B of parameters. Moreover, the predictability time is computed and stored in a table alongside with its corresponding value of $\epsilon$ and a linear fit of the predictability time as a function of the logarithm of the perturbation is performed in order to check what expected from the theory. 
-Finally, the same procedure is repeated for the case of an ensemble of pertubations and the corresponding predictability times are stored in a second table.
+### lorenz.py
 
 In the [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py) file all the functions used in the main code are defined:
-* *read_parameters*: converts a string composed of numbers separated by a comma into the corresponding np.array. It was realised in order to read the values of some parameters in the configuration file which are conceived to be vectors, but were written as strings.
-* *lorenz*: returns the time derivative of the 3 variables x, y and z as given by the Lorenz system.
-* *perturbation*: adds a perturbation to the first component of the initial condition of the simulation.
-* *difference*: performs the difference between the x-components of 2 trajectories of the system.
-* *RMSE*: performs the calculation of the root mean square error of the solution obtained from the perturbed ICs with respect to the unperturbed one.
+* *reading_configuration_file*: allows a command line interface with the user in order to let them choose the configuration file that they want to use for the simulation. If none is given, the default one is used; 
+* *lorenz*: returns the time derivative of the 3 variables x, y and z as given by the Lorenz system;
+* *perturbation*: adds a perturbation to the chosen component of the initial condition of the simulation;
+* *integration_Lorenz_system*: performs the integration of the Lorenz system, defined in the function lorenz, using the scipy.integrate.odeint function;
+* *difference*: performs the difference between the  chosen components of 2 trajectories of the system;
+* *RMSE*: performs the calculation of the root mean square error of the solution obtained from the perturbed ICs with respect to the unperturbed one;
+* *generate_random_perturbation*: returns an array of N random numbers in the range between -0.75 and 0.75;
+* *calculating_L_and_R*: calculates the mean of the RMSE of each members of the ensemble (R) and the RMSE of the ensemble mean (L);
 * *ensemble*: performs the calculation of the ensemble mean and of the ensemble spread;
 * *prediction*: finds the value of the predictability time for each value of the perturbation applied to the system;
 * *func*: produces a linear equation( y = ax + b) necessary for the linear fitting;
@@ -157,19 +118,42 @@ In the [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/l
 
 Further information are available as docstrings in the program itself and can be accessed by typing *help('name of the function')*.
 
+### plots.py and visualization.py
+
 In the [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/plots.py) file all the functions necessary to plot the results are defined:
 * *xzgraph*: produces a plot of the solution of the integration of the Lorenz system in the plane x, z. 
 * *plot_3dsolution*: produces a 3D plot of the solution of the integration of the Lorenz system.
 * *plot_animation*: produces an animation of the solution of the integration of the Lorenz system. Note that, in order to produce the animation, a suitable library is necessary, such as Pillow.
-* *plot_difference*: produces a plot of the difference as a function of time.
+* *plot_difference*: produces a plot of the difference as a function of time;
 * *plot_rmse*: produces a plot of the RMSE as a function of time;
 * *plot_ensemble_trajectories*: produces a plot of the ensemble mean and its corresponding ensemble spread for each of the 3 variables;
 * *plot_ensemble*: produces a plot of *L* and *R* as a function of time;
 * *pred_time_vs_perturbation*: produces a plot of the predictability time as a function of the applied perturbation.
 
-The graphs are automatically shown and saved in the repository [output](https://github.com/robertabenincasa/project_Lorenz/blob/master/output) by running the main code.
+Further information are available as docstrings in the program itself and can be accessed by typing *help('name of the function')*.
+
+These functions are imported in the script [visualization](https://github.com/robertabenincasa/project_Lorenz/blob/master/visualization.py) together with the data previousy produced. Then, the graphs are created, shown to the user and saved to the folder [/output/plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/output/plots). Together with the plots, tables containing the predictability times with their corresponding applied perturbation are equally created, printed to terminal and saved as .png files.
+
+### test.py
 
 Finally, in the [test](https://github.com/robertabenincasa/project_Lorenz/blob/master/test.py) file all the functions defined in the [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py) file are tested through hypothesis testing in order to verify their proper functioning.
+The property tested in each test is explained as a docstring in the file [test](https://github.com/robertabenincasa/project_Lorenz/blob/master/test.py) itself.
+
+## Expected results
+
+### Canonical system
+
+The 2 systems, resulting from the integration using the 2 set of parameters, show completely different behaviours. As expected, for set B of parameters, the solution converges to a single point attractor, whereas for set A of parameters, the system exhibits chaotic behaviour, i.e. of a strange attractor. Any two arbitrarily close alternative initial points on the attractor, after any of various numbers of iterations, will lead to points that are arbitrarily far apart, but still subject to the confines of the attractor, and after any of various other numbers of iterations will lead to points that are arbitrarily close together. Thus, a dynamic system with a chaotic attractor is locally unstable yet globally stable: once in the attractor, nearby points diverge from one another but never depart from the attractor. 
+Moreover, it is immediate to show the dissipative nature of the system in the second case, since it converges to a single point. Instead, in the former scenario this condition is satisfied because a strange attractor has a fractal structure, which has zero volume in phase space.
+
+## Single perturbation of the initial condition
+
+For set B, the 2 trajectories relaxes to a single one after a brief oscillating transient and their difference tends to zero accordingly. Instead, for set A of parameters, the 2 trajectories suddenly distance each other after a transient in which they coincide and start oscillating independently in a chaotic manner and so does their difference. The RMSE increases in an exponential manner and saturates at the size a of the attractor. That means that the RMSE, i.e. the distance between the 2 trajectories, cannot be greater than the dimension of the attractor itself, since they are confined to it. 
+
+## Ensemble of perturbations
+
+It is possible to show that the RMSE of the ensemble mean is clearly smaller than the mean RMSE or the RMSE of any simulation and the corresponding predictability times for *L* and *R* show how the predictability time window is expanded in the first case. 
+
 
 Here the resulting animation of the Lorenz system:
 ![](https://github.com/robertabenincasa/project_Lorenz/blob/master/output/plots/animation.gif)
