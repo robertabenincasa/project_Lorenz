@@ -169,5 +169,5 @@ The graphs are automatically shown and saved in the repository [output](https://
 Finally, in the [test](https://github.com/robertabenincasa/project_Lorenz/blob/master/test.py) file all the functions defined in the [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py) file are tested through hypothesis testing in order to verify their proper functioning.
 
 Here the resulting animation of the Lorenz system:
-![](https://github.com/robertabenincasa/project_Lorenz/blob/master/output/animation.gif)
+![](https://github.com/robertabenincasa/project_Lorenz/blob/master/output/plots/animation.gif)
 
