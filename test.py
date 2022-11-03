@@ -17,6 +17,8 @@ import configparser
 
 #----------------------------PARAMETERS TO BE SET-----------------------------#
 
+#This parameters have been set to make testing easier
+
 default_file_true = 'config.ini'
 
 configuration_file = 'config.ini' #Change it with the configuration file that
@@ -165,10 +167,14 @@ def test_configuratio_has_right_params():
 
 
 @given(state = exnp.arrays(np.dtype(float),(3,NUM_STEPS),
-        elements = st.floats(allow_nan = False, allow_infinity = False)), 
-        b = st.floats(allow_nan = False, allow_infinity = False), 
-        sigma = st.floats(allow_nan = False, allow_infinity = False), 
-        r = st.floats(allow_nan = False, allow_infinity = False))
+        elements = st.floats(min_value=-50., max_value = 50.,allow_nan = False, 
+        allow_infinity = False)), 
+        b = st.floats(min_value = 0., max_value = 100, allow_nan = False, 
+        allow_infinity = False), 
+        sigma = st.floats(min_value = 0., max_value = 100,allow_nan = False, 
+        allow_infinity = False), 
+        r = st.floats(min_value = 0., max_value = 100,allow_nan = False,
+        allow_infinity = False))
 @settings(max_examples = 10)  
 def test_lorenz_is_correct(state, sigma, b, r):
     """ This function tests that the lorenz function returns the correct Lorenz 
@@ -192,7 +198,6 @@ def test_lorenz_is_correct(state, sigma, b, r):
     
 
     
-
 @given(b = st.floats(min_value = 0.001, max_value= 10, 
         allow_nan=False), sigma = st.floats(min_value = 0.001,
         max_value= 20, allow_nan=False), 
@@ -258,7 +263,31 @@ def test_original_ic_is_preserved(eps, IC0, which_variable):
     IC = lorenz.perturbation(IC0,eps,which_variable)
        
     assert np.all(IC0[:] == IC[0,:])
-        
+
+
+@given(eps = exnp.arrays(np.dtype(float), N ,elements = 
+    st.floats(min_value = 0.,max_value= 1.,allow_nan=False, exclude_min=True, 
+    exclude_max=True)), 
+    IC0 = exnp.arrays(np.dtype(float), 3 ,elements = 
+    st.floats(min_value = -20,max_value= 20,allow_nan=False)), 
+    which_variable = st.integers(min_value = 0, max_value= 2))
+@settings(max_examples = 10)
+def test_ic_is_working(eps, IC0, which_variable):
+    
+    """ This function tests that, given perturbations applied to the IC, the 
+    difference between the original IC and the perturbed one must be equal to 
+    the applied perturbation.
+    
+        GIVEN: a perturbation to the IC
+        WHEN: I compute the perturbed IC
+        THEM: The difference between the original IC and the perturbed one must 
+        be equal to the applied perturbation.
+    """
+    
+    IC = lorenz.perturbation(IC0,eps,which_variable)
+    
+    assert np.allclose(IC[1:,which_variable] - IC0[which_variable], eps)
+  
     
 @given(eps = exnp.arrays(np.dtype(float), N ,elements = 
     st.floats(min_value = -1.1,max_value= 1.1,allow_nan=False)), 
@@ -372,8 +401,6 @@ def test_perturbation_exceptions_eps(eps, IC0, which_variable):
             
     
             
-
-
 #--------------------------------DIFFERENCE-----------------------------------#
 
         
@@ -487,47 +514,52 @@ def test_lorenz_integration_zero_is_an_attractor( r, eps, which_variable):
     
 
 
-@given(r = st.floats(min_value = 1., max_value= 24., allow_nan=False,
-        exclude_min = True, exclude_max = True),
-        eps = exnp.arrays(np.dtype(float), N ,elements = 
-        st.floats(min_value = 1E-10,max_value= 1.1,allow_nan=False)),  
+@given(r = st.floats(min_value = 1., max_value= 30., allow_nan=False,
+        exclude_min = True, exclude_max = True),  
         which_variable = st.integers(min_value = 0,
         max_value= 2))
 @settings(max_examples = 10, deadline=None)         
-def test_lorenz_integration_critical_points(r, eps, which_variable):
+def test_lorenz_integration_equilibrium_points(r, which_variable):
+    
     """ This function tests that the result of the integration satisfies the
-    following property of the Lorenz system: zero is an attractor for the system
-    for 0 < r < 1.
+    following property of the Lorenz system: for r > 1 it has 2 additional
+    equilibrium points. If the integration starts from one of them, the system 
+    should remain there if not perturbed.
         
-        GIVEN: r = 1  
-        WHEN: I call the function integration_Lorenz_system
-        THEN: I obtain that the solution for the last time steps is close to zero.
+        GIVEN: r > 1 and eps = 0
+        WHEN: I call the function integration_Lorenz_system using the 2 known
+        equilibrium points as ICs
+        THEN: The system should remain there at every time.
     
     """
-    
+    eps = np.zeros(N)
     NUM_STEPS = 12000
     
     t = np.linspace(0,NUM_STEPS,NUM_STEPS)*dt
     
     set_ = [sigma, b, r]
     
-    IC = lorenz.perturbation(IC_0,eps,which_variable)
+    point_1 = np.array([np.sqrt(b*(r-1)),np.sqrt(b*(r-1)), r-1])*np.ones((3,N+1)).T
     
-    if sigma > b +1:
+    point_2 = np.array([-np.sqrt(b*(r-1)),-np.sqrt(b*(r-1)), r-1])*np.ones((3,N+1)).T
     
-        sol = lorenz.integration_Lorenz_system(lorenz.lorenz,NUM_STEPS, t, IC, set_)
+    IC0_1 = np.array([np.sqrt(b*(r-1)),np.sqrt(b*(r-1)), r-1])
     
-        point_1 = np.array([np.sqrt(b*(r-1)),np.sqrt(b*(r-1)), r-1])*np.ones((3,N+1)).T
+    IC0_2 = np.array([-np.sqrt(b*(r-1)),-np.sqrt(b*(r-1)), r-1])
         
-        point_2 = np.array([-np.sqrt(b*(r-1)),-np.sqrt(b*(r-1)), r-1])*np.ones((3,N+1)).T
+    IC_1 = lorenz.perturbation(IC0_1,eps,which_variable)
+    
+    sol = lorenz.integration_Lorenz_system(lorenz.lorenz,NUM_STEPS, t, IC_1, set_)
+    
+    assert np.allclose(sol, point_1.T, 1E-7)
+    
+    IC_2 = lorenz.perturbation(IC0_2,eps,which_variable)
+
+    sol = lorenz.integration_Lorenz_system(lorenz.lorenz,NUM_STEPS, t, IC_2, set_)
+
+    assert np.allclose(sol, point_2.T, 1E-7)
         
-        if np.all(sol[NUM_STEPS-1,:,:] - point_1.T <= 2):
-            
-            assert np.all(sol[NUM_STEPS-1,:,:] - point_1.T <= 2) == True
-        
-        if np.all(sol[NUM_STEPS-1,:,:] - point_2.T <= 2):
-        
-            assert np.all(sol[NUM_STEPS-1,:,:] - point_2.T <= 2) == True
+    
 
 
 @given(b = st.floats(), sigma = st.floats(), 

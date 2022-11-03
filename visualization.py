@@ -185,4 +185,4 @@ df1 = pd.DataFrame(data = {'Predictability time L': pred_time_L,
 dfi.export(df1, path_plots + '/table_LR.png',fontsize = 30)
 
 print('\n')
-print('Plots and tables are now available in the folder: output')
+print('Plots and tables are now available in the folder: output/plots')
