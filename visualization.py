@@ -160,7 +160,7 @@ print('Single forecast:')
 print(tabulate(data, headers=col_names, tablefmt="fancy_grid"))
 
 data1 = np.column_stack((pred_time_L, pred_time_R))
-col_names1 = ["Prediction time L", "Predictability time R"]
+col_names1 = ["Predictability time L", "Predictability time R"]
 print('Ensemble forecast:')
 print(tabulate(data1, headers=col_names1, tablefmt="fancy_grid"))
 

@@ -425,23 +425,13 @@ def ensemble(sol: np.ndarray,
     
     """
     N = sol.shape[2]
-    
-    num_steps = sol.shape[0]
-    
-    spread = np.zeros((num_steps,3))
-    
-    S = np.zeros((N,3))    
-
+        
     sol_ave = np.mean(sol, 2)
     
-    for i in range(num_steps):
+    S = np.array([sol[:,:,m] for m in range(N)])
     
-        for j in range(3):
-    
-            S[:,j] = np.array([sol[i,j,m] for m in range(N)])
-    
-            spread[i,j] = np.std(S[:,j])
-            
+    spread = np.std(S, axis=0)
+
     return spread, sol_ave
 
 
