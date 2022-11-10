@@ -39,10 +39,10 @@ The **libraries** and **modules** needed to run the program and produce the desi
 * *pandas*;
 * *os.path*;
 * *typing*;
-* *matplotlib.plot*
-* *matplotlib.animation*
-* *dataframe_image*
-* *tabulate*
+* *matplotlib.plot*;
+* *matplotlib.animation*;
+* *dataframe_image*;
+* *tabulate*;
 * *Pillow* or an equivalent library.
 
 For testing, the following are requested instead:
@@ -65,7 +65,7 @@ As previously said, the file [config](https://github.com/robertabenincasa/projec
 * *sigma*, *b*, *r1*, *r2*: the parameters of the Lorenz system, where *r* is set equal to 2 possible values, namely *r1* and *r2*, which corresponds to a chaotic  and a non-chaotic solution, respectively.
 * *which_variable*: it indicates which variable among x, y and z of the initial condition *IC* is chosen to be perturbed;
 * *eps*: vector of the applied perturbations to the initial condition;
-* *threshold*: threshold to be used in the analysis to determine the predictability time of the system, i.e. when the RMSE becomes greater than this value.
+* *threshold*: threshold to be used in the analysis to determine the predictability time of the system, i.e. when the RMSE becomes greater than this value;
 * *which_eps_for_difference*,*which_eps_for_animation*: they are used in the plotting process in order to select which solution one wants to visualize.
 
 The following paths are also specified there:
@@ -87,7 +87,7 @@ RMSE = \sqrt{\frac{1}{3}\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{per})^{2}}
 $$
 
 Note that the analysis, starting from the computation of the RMSE, is performed only on the chaotic solution, since it would have been uninformative for set B of parameters.
-Moreover, in a chaotic system, the distance between the two trajectories $\delta$(t) grows as $\delta(t)\sim\delta_{0}\exp{\lambda t}$, where $\lambda$ is the maximum Lyapunov exponent (approximately 0.9 for the Lorenz system), so the predictability time $t\sim\frac{1}{\lambda}ln(\frac{a}{\delta_{0}})$ is supposed to decrease with increasing initial distance following a logarithmic relation. The predictability time is here arbitrarly calculated as the time at which the RMSE became greater than a certain threshold, defined in the configuration file, and is related to the sensitiveness to the initial condition typical of chaotic systems. For the sake of completeness, a linear fit of the predictability time as a function of the logarithm of the perturbation is performed in order to check what expected from the theory. However, since this relation is supposed to be valid for infinitesimal perturbations, 2 fits are performed and compared: one for perturnations up to $10_{-7}$ and the other for greater values of $\epsilon$. 
+Moreover, in a chaotic system, the distance between the two trajectories $\delta$(t) grows as $\delta(t)\sim\delta_{0}\exp{\lambda t}$, where $\lambda$ is the maximum Lyapunov exponent (approximately 0.9 for the Lorenz system), so the predictability time $t\sim\frac{1}{\lambda}ln(\frac{a}{\delta_{0}})$ is supposed to decrease with increasing initial distance following a logarithmic relation. The predictability time is here arbitrarly calculated as the time at which the RMSE became greater than a certain threshold, defined in the configuration file, and is related to the sensitiveness to the initial condition typical of chaotic systems. For the sake of completeness, a linear fit of the predictability time as a function of the logarithm of the perturbation is performed in order to check what expected from the theory. However, since this relation is supposed to be valid for infinitesimal perturbations, 2 fits are performed and compared: one for perturnations up to $10^{-7}$ and the other for greater values of $\epsilon$. 
 
 Finally, in order to show how the predictability of such a chaotic system can be improved, ensemble forecasting is considered. An ensemble of *N* random generated perturbations is applied as before and the Lorenz system is integrated for each IC. The ensemble mean and the ensemble spread are computed for each variable. Then, the RMSE of the ensemble mean (*L*) and the mean RMSE (*R*) are computed as a function of time:
 
@@ -98,6 +98,7 @@ L = \sqrt{\frac{1}{3}\sum_{i=1}^{3}(x_{i}^{true}-x_{i}^{ave})^{2}}   &&    R = \
 $$
 
 and the associated predictability times are calculated. 
+
 Ultimately, all the numerical results are saved to files and stored in the folder [/output/data](https://github.com/robertabenincasa/project_Lorenz/blob/master/output/data).
 
 ### lorenz.py
