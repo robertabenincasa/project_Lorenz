@@ -185,7 +185,7 @@ def integration_Lorenz_system(lorenz: Callable,
                               num_steps: int,
                               t: np.ndarray,
                               IC: np.ndarray,
-                              set_parameters: tuple,
+                              set_parameters: list,
                               ) -> np.ndarray:
     """ This function performs the integration of the Lorenz system, defined in
     the function lorenz, using the scipy module odeint.
@@ -459,7 +459,7 @@ def prediction(
                 
             Returns:
             --------
-                pred_time : array-like(float)
+                pred_time : array-like(float) or float
                 Measure of the chaotic nature of the system, i.e. the time 
                 after which a perturbation to the IC of the system leads to
                 a significative divergence of the solution with respect to 
@@ -474,7 +474,7 @@ def prediction(
                 rmse is a 1D array that depends only on time and for the case 
                 where it is a 2D array that depends also on the value of the 
                 perturbation. It was done in order to allow the computation 
-                for both an ensamble of perturbation and for a single trajectory.
+                for both an ensemble of perturbation and for a single trajectory.
                 
     
     """

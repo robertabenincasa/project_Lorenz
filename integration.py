@@ -98,7 +98,7 @@ delta_non_chaotic = lorenz.difference(sol_non_chaotic[:,which_variable,0],
 
 rmse = lorenz.RMSE(sol_chaotic)
 
-pred_time = lorenz.prediction(rmse, dt, alpha)
+pred_time = np.array(lorenz.prediction(rmse, dt, alpha))
 
 fit, popt, p_low, p_top = lorenz.fitting(lorenz.func,eps,pred_time, -1.1, 10)[0:4]
 fit1, popt1, p_low1, p_top1 = lorenz.fitting(lorenz.func,eps[0:4],
