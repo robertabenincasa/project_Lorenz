@@ -52,7 +52,7 @@ For testing, the following are requested instead:
 
 ## The structure of the program
 
-Six different scripts have been implemented in order to perform all the tasks: [config](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.py), [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py), [visualization](https://github.com/robertabenincasa/project_Lorenz/blob/master/visualization.py), [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py, [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/plots.py) and [test](https://github.com/robertabenincasa/project_Lorenz/blob/master/test.py).
+Six different scripts have been implemented in order to perform all the tasks: [config](https://github.com/robertabenincasa/project_Lorenz/blob/master/config.py), [integration](https://github.com/robertabenincasa/project_Lorenz/blob/master/integration.py), [visualization](https://github.com/robertabenincasa/project_Lorenz/blob/master/visualization.py), [lorenz](https://github.com/robertabenincasa/project_Lorenz/blob/master/lorenz.py), [plots](https://github.com/robertabenincasa/project_Lorenz/blob/master/plots.py) and [test](https://github.com/robertabenincasa/project_Lorenz/blob/master/test.py).
 
 ### config.py
 
