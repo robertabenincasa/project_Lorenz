@@ -39,10 +39,10 @@ The **libraries** and **modules** needed to run the program and produce the desi
 * *pandas*;
 * *os.path*;
 * *typing*;
-* *matplotlib.plot*
-* *matplotlib.animation*
-* *dataframe_image*
-* *tabulate*
+* *matplotlib.plot*;
+* *matplotlib.animation*;
+* *dataframe_image*;
+* *tabulate*;
 * *Pillow* or an equivalent library.
 
 For testing, the following are requested instead:
