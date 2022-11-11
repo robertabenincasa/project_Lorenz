@@ -62,9 +62,9 @@ def test_reading_configuration_file_valid_file(default_file):
           
     with mock.patch('builtins.input', return_value=default_file):
         
-        with pytest.raises(NameError):
-            
-            if path.exists(default_file) == False:
+       if path.exists(default_file) == False:
+           
+           with pytest.raises(NameError):
             
                 lorenz.reading_configuration_file(default_file)
             
@@ -87,9 +87,9 @@ def test_reading_configuration_file_not_existing(file):
           
     with mock.patch('builtins.input', return_value=file):
         
-        with pytest.raises(NameError):
-        
-            if path.exists(file) == False:
+        if path.exists(file) == False:
+            
+            with pytest.raises(NameError):
             
                 lorenz.reading_configuration_file(default_file_true)
                 
